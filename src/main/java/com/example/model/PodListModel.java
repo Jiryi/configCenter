@@ -69,7 +69,7 @@ public class PodListModel {
             jo.put("age",      podList.get(index).getAge());
             // jo.put("restarts", mPodList.get(index).getRestarts());
             // jo.put("message",  mPodList.get(index).getMessage());
-            // jo.put("CPUS",     mPodList.get(index).getCPUs());
+            // jo.put("CPUs",     mPodList.get(index).getCPUs());
             // jo.put("Memory",   mPodList.get(index).getMemory());
             json.put(jo);
         }
