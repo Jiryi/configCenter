@@ -54,4 +54,23 @@ public class MPodList {
         }
     }
 
+    public JSONArray toJSON() {
+        JSONArray json = new JSONArray();
+        for(int index = 0; index < mPodList.size(); index++)
+        {
+            JSONObject jo = new JSONObject();
+            jo.put("name",     mPodList.get(index).getName());
+            jo.put("status",   mPodList.get(index).getStatus());
+            jo.put("message",  mPodList.get(index).getMessage());
+            jo.put("podIP",    mPodList.get(index).getPodIP());
+            jo.put("restarts", mPodList.get(index).getRestarts());
+            jo.put("age",      mPodList.get(index).getAge());
+            jo.put("CPUS",     mPodList.get(index).getCPUS());
+            jo.put("Memory",   mPodList.get(index).getMemory());
+            json.put(jo);
+        }
+
+        return json;
+    }
+
 }

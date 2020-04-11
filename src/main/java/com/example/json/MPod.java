@@ -44,9 +44,36 @@ public class MPod {
     // private List< String > containers;  //所有包含的容器名
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
+    public String getStatus() {
+        return this.status;
+    }
+
+    public String getMessage() {
+        return this.message;
+    }
+
+    public String getPodIP() {
+        return this.podIP;
+    }
+
+    public Integer getRestarts() {
+        return this.restarts;
+    }
+
+    public String getAge() {
+        return this.age;
+    }
+
+    public Float getCPUS() {
+        return this.CPUS;
+    }
+
+    public Float getMemory() {
+        return this.Memory;
+    }
     private String calculateDuration(DateTime creationTimestamp) {
         Period p = new Period(new DateTime(), creationTimestamp);
         String ret = null;    
@@ -104,7 +131,6 @@ public class MPod {
 //        this.CPUs = calculateCPU(v1Pod.getSpec().getContainers());     //CPU使用率
         this.CPUs = (float) 0;
         this.Memory = (float) 0;   //内存使用情况
-
     }
 } 
 

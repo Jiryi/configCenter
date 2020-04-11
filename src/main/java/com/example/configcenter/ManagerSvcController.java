@@ -33,7 +33,7 @@ import java.io.IOException;
 public class ManagerSvcController {
 
 @RequestMapping(value = "/getPods", method = RequestMethod.GET)
-    public MPodList getPods() throws ApiException, IOException {
+    public JSONArray getPods() throws ApiException, IOException {
         //IOException 是操作输入流和输出流时可能出现的异常，ApiException
     	
     	// file path to your KubeConfig，（若直接在项目下可以直接写文件名）
@@ -111,6 +111,6 @@ public class ManagerSvcController {
 //            e.printStackTrace();
 //          }
 
-        return mpodlist;
+        return mpodlist.toJSON();
     }
 }
