@@ -31,7 +31,7 @@ import io.kubernetes.client.util.KubeConfig;
  */
 
 
-public class mPod {
+public class PodModel {
     private String name;     //pod名字
     private String namespace;//名空间
     private String status;   //当前状态

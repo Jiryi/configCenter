@@ -23,7 +23,7 @@ import io.kubernetes.client.proto.V1.PodList;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 
-public class mService{
+public class SeriveModel{
     private String name;         //service名字
     private String namespace;    //名空间
     private Map<String, String> labels;   //所有标签

@@ -30,17 +30,17 @@ import io.kubernetes.client.util.KubeConfig;
  * 返回pod列表
  *
  */
-public class mPodList {
-    private List< mPod > podList = new ArrayList< mPod >();
+public class PodListModel {
+    private List< PodModel > podList = new ArrayList< PodModel >();
 
-    public List< mPod > getPodList() {
+    public List< PodModel > getPodList() {
         return podList;
     }
 
     public void set(V1PodList v1PodList) {
         for(int index = 0; index < v1PodList.getItems().size(); index++)
         {
-        	mPod pod = new mPod();
+        	PodModel pod = new PodModel();
         	pod.set(v1PodList.getItems().get(index));
         	podList.set(1, pod);
         }
@@ -49,7 +49,7 @@ public class mPodList {
     public void add(V1PodList v1PodList) {
         for(int index = 0; index < v1PodList.getItems().size(); index++)
         {
-        	mPod pod = new mPod();
+        	PodModel pod = new PodModel();
         	pod.set(v1PodList.getItems().get(index));
         	if(podList == null) podList.set(1, pod);
         	else podList.add(pod);
