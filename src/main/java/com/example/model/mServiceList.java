@@ -1,4 +1,4 @@
-package com.example.json;
+package com.example.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,50 +26,32 @@ import io.kubernetes.client.proto.V1.PodList;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 
-/**
- * 返回pod列表
- *
- */
-public class MPodList {
-    private List< MPod > mPodList = new ArrayList< MPod >();
+public class mServiceList {
+    private List< mService > serviceList = new ArrayList< mService >();
 
-    public List< MPod > getNames() {
-        return mPodList;
-    }
-
-    public void set(V1PodList v1PodList) {
-        for(int index = 0; index < v1PodList.getItems().size(); index++)
+    public void add(V1SeriveList v1SeriveList) {
+        for(int index = 0; index < v1SeriveList.getItems().size(); index++)
         {
-        	MPod pod = new MPod();
-        	pod.set(v1PodList.getItems().get(index));
-        	mPodList.set(1, pod);
-        }
-    }
-    
-    public void add(V1PodList v1PodList) {
-        for(int index = 0; index < v1PodList.getItems().size(); index++)
-        {
-        	MPod pod = new MPod();
-        	pod.set(v1PodList.getItems().get(index));
-        	if(mPodList == null) mPodList.set(1, pod);
-        	else mPodList.add(pod);
+        	mService service = new mService();
+        	service.set(v1SeriveList.getItems().get(index));
+        	if(serviceList == null) serviceList.set(1, service);
+        	else serviceList.add(service);
         }
     }
 
     public String toJSON() {
         JSONArray json = new JSONArray();
         try{
-        for(int index = 0; index < mPodList.size(); index++)
+        for(int index = 0; index < serviceList.size(); index++)
         {
             JSONObject jo = new JSONObject();
-            jo.put("name",     mPodList.get(index).getName());
-            jo.put("status",   mPodList.get(index).getStatus());
-            jo.put("message",  mPodList.get(index).getMessage());
-            jo.put("podIP",    mPodList.get(index).getPodIP());
-            jo.put("restarts", mPodList.get(index).getRestarts());
-            jo.put("age",      mPodList.get(index).getAge());
-            jo.put("CPUS",     mPodList.get(index).getCPUs());
-            jo.put("Memory",   mPodList.get(index).getMemory());
+            JSONArray 
+            jo.put("name",     serviceList.get(index).getName());
+            jo.put("namespace",serviceList.get(index).getNamespace());
+            jo.put("type",     serviceList.get(index).getType());
+            jo.put("clusterIP",serviceList.get(index).getClusterIP());
+            jo.put("age",      serviceList.get(index).getAge());
+            jo.put("label",    serviceList.get(index).getLabel());
             json.put(jo);
             System.out.println(jo);
         }
@@ -79,5 +61,4 @@ public class MPodList {
 
         return json.toString();
     }
-
 }
