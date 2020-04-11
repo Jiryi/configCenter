@@ -67,15 +67,15 @@ public class MPod {
         return this.age;
     }
 
-    public Float getCPUS() {
-        return this.CPUS;
+    public Float getCPUs() {
+        return this.CPUs;
     }
 
     public Float getMemory() {
         return this.Memory;
     }
     private String calculateDuration(DateTime creationTimestamp) {
-        Period p = new Period(new DateTime(), creationTimestamp);
+        Period p = new Period(creationTimestamp, new DateTime());
         String ret = null;    
         if(p.getYears() != 0) {
             if(p.getYears() == 1)

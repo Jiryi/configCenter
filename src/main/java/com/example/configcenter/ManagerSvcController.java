@@ -19,6 +19,8 @@ import io.kubernetes.client.proto.V1.Pod;
 import io.kubernetes.client.proto.V1.PodList;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
+
+import org.json.JSONArray;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,7 +35,7 @@ import java.io.IOException;
 public class ManagerSvcController {
 
 @RequestMapping(value = "/getPods", method = RequestMethod.GET)
-    public JSONArray getPods() throws ApiException, IOException {
+    public String getPods() throws ApiException, IOException {
         //IOException 是操作输入流和输出流时可能出现的异常，ApiException
     	
     	// file path to your KubeConfig，（若直接在项目下可以直接写文件名）

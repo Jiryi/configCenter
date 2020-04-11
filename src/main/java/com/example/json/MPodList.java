@@ -3,6 +3,9 @@ package com.example.json;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.Configuration;
@@ -48,14 +51,14 @@ public class MPodList {
         {
         	MPod pod = new MPod();
         	pod.set(v1PodList.getItems().get(index));
-        	System.out.println(pod);
         	if(mPodList == null) mPodList.set(1, pod);
         	else mPodList.add(pod);
         }
     }
 
-    public JSONArray toJSON() {
+    public String toJSON() {
         JSONArray json = new JSONArray();
+        try{
         for(int index = 0; index < mPodList.size(); index++)
         {
             JSONObject jo = new JSONObject();
@@ -65,12 +68,16 @@ public class MPodList {
             jo.put("podIP",    mPodList.get(index).getPodIP());
             jo.put("restarts", mPodList.get(index).getRestarts());
             jo.put("age",      mPodList.get(index).getAge());
-            jo.put("CPUS",     mPodList.get(index).getCPUS());
+            jo.put("CPUS",     mPodList.get(index).getCPUs());
             jo.put("Memory",   mPodList.get(index).getMemory());
             json.put(jo);
+            System.out.println(jo);
+        }
+        } catch (Exception e) {
+          e.printStackTrace();
         }
 
-        return json;
+        return json.toString();
     }
 
 }
