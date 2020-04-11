@@ -72,7 +72,6 @@ public class PodListModel {
             // jo.put("CPUS",     mPodList.get(index).getCPUs());
             // jo.put("Memory",   mPodList.get(index).getMemory());
             json.put(jo);
-            System.out.println(jo);
         }
         } catch (Exception e) {
           e.printStackTrace();

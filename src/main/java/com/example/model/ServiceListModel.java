@@ -52,7 +52,6 @@ public class ServiceListModel {
             jo.put("age",      serviceList.get(index).getAge());
             jo.put("label",    serviceList.get(index).getLabel());
             json.put(jo);
-            System.out.println(jo);
         }
         } catch (Exception e) {
           e.printStackTrace();
