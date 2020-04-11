@@ -18,7 +18,7 @@ public class ConfigcenterApplication {
         return new WebMvcConfigurer() {
 
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**");
+                registry.addMapping("/**").allowOrigins("http://localhost:3000");
             }
         };
     }

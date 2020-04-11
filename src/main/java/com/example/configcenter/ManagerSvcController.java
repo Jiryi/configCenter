@@ -32,6 +32,7 @@ import java.io.FileReader;
 import java.io.IOException;
 @RestController
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/get")
 public class ManagerSvcController {
 @RequestMapping(value = "/getPods", method = RequestMethod.GET)
@@ -116,6 +117,7 @@ public class ManagerSvcController {
         return podListModel.toJSON();
     }
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(value = "/getServices", method = RequestMethod.GET)
     public String getServices() throws ApiException, IOException {
 		// file path to your KubeConfig，（若直接在项目下可以直接写文件名）
