@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.json.PodListModel;
-import com.example.json.ServiceListModel;
+import com.example.model.PodListModel;
+import com.example.model.ServiceListModel;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -34,48 +34,48 @@ import java.io.IOException;
 
 @RequestMapping("/get")
 public class ManagerSvcController {
-    //IOException 是操作输入流和输出流时可能出现的异常，ApiException
-    
-    // file path to your KubeConfig，（若直接在项目下可以直接写文件名）
-    String kubeConfigPath = "C:\\Users\\jiryi\\config";
-    
-    // loading the out-of-cluster config, a kubeconfig from file-system
-    //加载k8s,config
-    ApiClient client =
-              ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
-      
-    //将加载config的client设置为默认的client
-    Configuration.setDefaultApiClient(client);
-    
-    // Configure API key authorization: BearerToken
-    // ApiKeyAuth BearerToken = (ApiKeyAuth) client.getAuthentication("BearerToken");
-    // BearerToken.setApiKey("YOUR API KEY");
-    // Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
-    //BearerToken.setApiKeyPrefix("Token");
-    //  String namespace = "default"; 
-    // String namespace1 = "istio-system";
-    // String namespace2 = "istio-test";
-    // String namespace3 = "kube-node-lease";
-    // String namespace4 = "kube-public";
-    // String namespace5 = "kube-system";
-    
-    
-    // the CoreV1Api loads default api-client from global configuration.
-    //创建一个api,这里用的是加了参数的，
-    CoreV1Api api = new CoreV1Api(client);
-    //CoreV1Api apiInstance = new CoreV1Api();在这里有无括号都一样
-    //String namespace = "default";
-    String pretty = "true"; 
-    Boolean allowWatchBookmarks = true; 
-    String _continue = null;
-    String fieldSelector = null; 
-    String labelSelector = null; 
-    Integer limit = null; 
-    String resourceVersion = null; 
-    Integer timeoutSeconds = 56; 
-    Boolean watch = false;
 @RequestMapping(value = "/getPods", method = RequestMethod.GET)
     public String getPods() throws ApiException, IOException {
+		//IOException 是操作输入流和输出流时可能出现的异常，ApiException
+    
+    	// file path to your KubeConfig，（若直接在项目下可以直接写文件名）
+    	String kubeConfigPath = "C:\\Users\\jiryi\\config";
+    
+    	// loading the out-of-cluster config, a kubeconfig from file-system
+    	//加载k8s,config
+    	ApiClient client =
+    			ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
+      
+    	//将加载config的client设置为默认的client
+    	Configuration.setDefaultApiClient(client);
+    
+    	// Configure API key authorization: BearerToken
+    	// ApiKeyAuth BearerToken = (ApiKeyAuth) client.getAuthentication("BearerToken");
+    	// BearerToken.setApiKey("YOUR API KEY");
+    	// Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+    	//BearerToken.setApiKeyPrefix("Token");
+    	//  String namespace = "default"; 
+    	// String namespace1 = "istio-system";
+    	// String namespace2 = "istio-test";
+    	// String namespace3 = "kube-node-lease";
+    	// String namespace4 = "kube-public";
+    	// String namespace5 = "kube-system";
+    
+    
+    	// the CoreV1Api loads default api-client from global configuration.
+    	//创建一个api,这里用的是加了参数的，
+    	CoreV1Api api = new CoreV1Api(client);
+    	//CoreV1Api apiInstance = new CoreV1Api();在这里有无括号都一样
+    	//String namespace = "default";
+    	String pretty = "true"; 
+    	Boolean allowWatchBookmarks = true; 
+    	String _continue = null;
+    	String fieldSelector = null; 
+    	String labelSelector = null; 
+    	Integer limit = null; 
+    	String resourceVersion = null; 
+    	Integer timeoutSeconds = 56; 
+    	Boolean watch = false;
         
         PodListModel podListModel = new PodListModel();
         
@@ -87,11 +87,11 @@ public class ManagerSvcController {
           for(int namespaceIndex = 0; namespaceIndex < namespaceList.getItems().size(); namespaceIndex++)
           {
             V1PodList podList = api.listNamespacedPod(namespaceList.getItems().get(namespaceIndex).getMetadata().getName(),
-                                                      allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, timeoutSeconds, watch);
+                                                      allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, null, watch);
             podListModel.add(podList);
           }          
                     
-        } catch (Exception e) {
+        } catch (ApiException e) {
         //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
           System.err.println("Status code: " + e.getCode());
           System.err.println("Reason: " + e.getResponseBody());
@@ -117,9 +117,47 @@ public class ManagerSvcController {
     }
 
 @RequestMapping(value = "/getServices", method = RequestMethod.GET)
-    public String getPods() throws ApiException, IOException {
-        
-        ServiceListModel serviceListModel = new ServiceListModel();
+    public String getServices() throws ApiException, IOException {
+		// file path to your KubeConfig，（若直接在项目下可以直接写文件名）
+		String kubeConfigPath = "C:\\Users\\jiryi\\config";
+
+		// loading the out-of-cluster config, a kubeconfig from file-system
+		//加载k8s,config
+		ApiClient client =
+				ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
+  
+		//将加载config的client设置为默认的client
+		Configuration.setDefaultApiClient(client);
+
+		// Configure API key authorization: BearerToken
+		// ApiKeyAuth BearerToken = (ApiKeyAuth) client.getAuthentication("BearerToken");
+		// BearerToken.setApiKey("YOUR API KEY");
+		// Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+		//BearerToken.setApiKeyPrefix("Token");
+		//  String namespace = "default"; 
+		// String namespace1 = "istio-system";
+		// String namespace2 = "istio-test";
+		// String namespace3 = "kube-node-lease";
+		// String namespace4 = "kube-public";
+		// String namespace5 = "kube-system";
+
+
+		// the CoreV1Api loads default api-client from global configuration.
+		//创建一个api,这里用的是加了参数的，
+		CoreV1Api api = new CoreV1Api(client);
+		//CoreV1Api apiInstance = new CoreV1Api();在这里有无括号都一样
+		//String namespace = "default";
+		String pretty = "true"; 
+		Boolean allowWatchBookmarks = true; 
+		String _continue = null;
+		String fieldSelector = null; 
+		String labelSelector = null; 
+		Integer limit = null; 
+		String resourceVersion = null; 
+		Integer timeoutSeconds = 56; 
+		Boolean watch = false;
+		
+		ServiceListModel serviceListModel = new ServiceListModel();
         
         System.out.println("-----------------------------------");
         System.out.println("           Service List            ");

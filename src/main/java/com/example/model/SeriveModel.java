@@ -1,5 +1,9 @@
 package com.example.model;
 
+import java.util.Map;
+
+import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,6 +18,7 @@ import io.kubernetes.client.models.V1NamespaceList;
 import io.kubernetes.client.models.V1ObjectMeta;
 import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.models.V1PodList;
+import io.kubernetes.client.models.V1Service;
 import io.kubernetes.client.models.V1ServiceList;
 import io.kubernetes.client.proto.Meta.ObjectMeta;
 import io.kubernetes.client.proto.V1.Namespace;
@@ -63,10 +68,9 @@ public class SeriveModel{
     }
 
     public String getLabel() {
-        Map<String, String> map = new HashMap<Integer, Integer>();
-        Iterator<Map.Entry<String, String>> entries = labels.entrySet().iterator();
-        if(labels.entrySet().iterator().hasNext()) {
+        if(labels != null && labels.entrySet().iterator().hasNext()) {
             return labels.entrySet().iterator().next().getValue();
+        }
         return "-";
     }
 
@@ -119,7 +123,7 @@ public class SeriveModel{
     public void set(V1Service v1Service) {
         this.name = v1Service.getMetadata().getName();
         this.labels = v1Service.getMetadata().getLabels();
-        this.namespace = v1Pod.getMetadata().getNamespace();
+        this.namespace = v1Service.getMetadata().getNamespace();
         this.type = v1Service.getSpec().getType();
         this.clusterIP = v1Service.getSpec().getClusterIP();
         this.age = calculateDuration(v1Service.getMetadata().getCreationTimestamp());

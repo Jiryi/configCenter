@@ -26,10 +26,10 @@ import io.kubernetes.client.proto.V1.PodList;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 
-public class mServiceList {
+public class ServiceListModel {
     private List< SeriveModel > serviceList = new ArrayList< SeriveModel >();
 
-    public void add(V1SeriveList v1SeriveList) {
+    public void add(V1ServiceList v1SeriveList) {
         for(int index = 0; index < v1SeriveList.getItems().size(); index++)
         {
         	SeriveModel service = new SeriveModel();
@@ -45,7 +45,6 @@ public class mServiceList {
         for(int index = 0; index < serviceList.size(); index++)
         {
             JSONObject jo = new JSONObject();
-            JSONArray 
             jo.put("name",     serviceList.get(index).getName());
             jo.put("namespace",serviceList.get(index).getNamespace());
             jo.put("type",     serviceList.get(index).getType());
