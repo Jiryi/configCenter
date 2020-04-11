@@ -1,6 +1,9 @@
 package com.example.json;
 
+import java.util.List;
+
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
@@ -9,6 +12,7 @@ import io.kubernetes.client.ProtoClient;
 import io.kubernetes.client.ProtoClient.ObjectOrStatus;
 import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.auth.ApiKeyAuth;
+import io.kubernetes.client.models.V1Container;
 import io.kubernetes.client.models.V1NamespaceList;
 import io.kubernetes.client.models.V1ObjectMeta;
 import io.kubernetes.client.models.V1Pod;
@@ -27,7 +31,7 @@ import io.kubernetes.client.util.KubeConfig;
  */
 
 
-public class Pod {
+public class MPod {
     private String name;     //pod名字
     private String status;   //当前状态
     private String message;  //关于当前状态的具体信息以及异常导致原因
@@ -43,64 +47,52 @@ public class Pod {
         return name;
     }
 
-    public String getNamespace() {
-        return namespace;
-    }
-
-    public Integer getContainersNumber() {
-        return containersNumber;
-    }
-
-    public List< String > getContainers() {
-        return containers;
-    }
-
     private String calculateDuration(DateTime creationTimestamp) {
         Period p = new Period(new DateTime(), creationTimestamp);
         String ret = null;    
         if(p.getYears() != 0) {
-            if(p.getYears == 1)
-                ret = p.getYears().toString() + " year ago";
+            if(p.getYears() == 1)
+                ret = p.getYears() + " year ago";
             else
-                ret = p.getYears().toString() + " years ago";
+                ret = p.getYears() + " years ago";
             return ret;
         }
         if(p.getMonths() != 0) {
-            if(p.getMonths == 1)
-                ret = p.getMonths().toString() + " month ago";
+            if(p.getMonths() == 1)
+                ret = p.getMonths() + " month ago";
             else
-                ret = p.getMonths().toString() + " months ago";
+                ret = p.getMonths() + " months ago";
             return ret;
         }
         if(p.getDays() != 0) {
-            if(p.getMonths == 1)
-                ret = p.getDays().toString() + " day ago";
+            if(p.getDays() == 1)
+                ret = p.getDays() + " day ago";
             else
-                ret = p.getDays().toString() + " days ago";
+                ret = p.getDays() + " days ago";
             return ret;
         }
         if(p.getHours() != 0) {
-            if(p.getMonths == 1)
-                ret = p.getHours().toString() + " hour ago";
+            if(p.getHours() == 1)
+                ret = p.getHours() + " hour ago";
             else
-                ret = p.getHours().toString() + " hours ago";
+                ret = p.getHours() + " hours ago";
             return ret;
         }
 
         if(p.getMinutes() == 0 || p.getMinutes() == 1)
-            ret = p.getHours().toString() + " minute ago";
+            ret = p.getMinutes() + " minute ago";
         else
-            ret = p.getHours().toString() + " minutes ago";
+            ret = p.getMinutes() + " minutes ago";
         return ret;
     }
 
-    private Float calculateCPU(List<V1Container> containers)
-    {
-        for(int index = 0; index < containers.size(); index++)
-        {
-            containers.get(index).getResources();
-        }
-    }
+//    private Float calculateCPU(List<V1Container> containers)
+//    {
+//        for(int index = 0; index < containers.size(); index++)
+//        {
+//            containers.get(index).getResources();
+//        }
+//    }
 
     public void set(V1Pod v1Pod) {
         this.name = v1Pod.getMetadata().getName();
@@ -109,8 +101,9 @@ public class Pod {
         this.podIP = v1Pod.getStatus().getPodIP();
         this.restarts = 0;
         this.age = calculateDuration(v1Pod.getMetadata().getCreationTimestamp());
-        this.CPUs = calculateCPU(v1Pod.getSpec().getContainers());     //CPU使用率
-        this.Memory = ;   //内存使用情况
+//        this.CPUs = calculateCPU(v1Pod.getSpec().getContainers());     //CPU使用率
+        this.CPUs = (float) 0;
+        this.Memory = (float) 0;   //内存使用情况
 
     }
 } 

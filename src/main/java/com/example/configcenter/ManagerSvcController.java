@@ -20,7 +20,10 @@ import io.kubernetes.client.proto.V1.PodList;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.json.MPodList;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -30,7 +33,7 @@ import java.io.IOException;
 public class ManagerSvcController {
 
 @RequestMapping(value = "/getPods", method = RequestMethod.GET)
-    public SpringPods getPods() throws ApiException, IOException {
+    public MPodList getPods() throws ApiException, IOException {
         //IOException 是操作输入流和输出流时可能出现的异常，ApiException
     	
     	// file path to your KubeConfig，（若直接在项目下可以直接写文件名）
@@ -71,16 +74,19 @@ public class ManagerSvcController {
         String resourceVersion = null; 
         Integer timeoutSeconds = 56; 
         Boolean watch = false;
+        
+        MPodList mpodlist = new MPodList();
+        
+        System.out.println("-----------------------------------");
+        System.out.println("              start                ");
+        System.out.println("-----------------------------------");
         try {
           V1NamespaceList namespaceList = api.listNamespace(allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, timeoutSeconds, watch);
-          for(int namespaceIndex = 0; namespaceIndex < namespaceList.getItems.size(); namespaceIndex++)
+          for(int namespaceIndex = 0; namespaceIndex < namespaceList.getItems().size(); namespaceIndex++)
           {
-            V1PodList podList = api.listNamespacedPod(namespaceList.getItems.get(namespaceIndex),
+            V1PodList podList = api.listNamespacedPod(namespaceList.getItems().get(namespaceIndex).getMetadata().getName(),
                                                       allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, null, watch);
-            for(int podIndex = 0; podIndex < podList.getItems.size(); podIndex++)
-            {
-              String podName = podList.getItems.get(podIndex).name; //TODO:method to get name..
-            }
+            mpodlist.add(podList);
           }          
                     
         } catch (ApiException e) {
@@ -91,16 +97,20 @@ public class ManagerSvcController {
           e.printStackTrace();
         }
         
-        try {
-            V1ServiceList result = api.listNamespacedService(namespace, allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, timeoutSeconds, watch);     
-          } catch (ApiException e) {
-            System.err.println("Exception when calling CoreV1Api#listNamespacedService");
-            System.err.println("Status code: " + e.getCode());
-            System.err.println("Reason: " + e.getResponseBody());
-            System.err.println("Response headers: " + e.getResponseHeaders());
-            e.printStackTrace();
-          }
+        System.out.println("-----------------------------------");
+        System.out.println("               done                ");
+        System.out.println("-----------------------------------");
+        
+//        try {
+//            V1ServiceList result = api.listNamespacedService(namespace, allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, timeoutSeconds, watch);     
+//          } catch (ApiException e) {
+//            System.err.println("Exception when calling CoreV1Api#listNamespacedService");
+//            System.err.println("Status code: " + e.getCode());
+//            System.err.println("Reason: " + e.getResponseBody());
+//            System.err.println("Response headers: " + e.getResponseHeaders());
+//            e.printStackTrace();
+//          }
 
-        return "test";
+        return mpodlist;
     }
 }

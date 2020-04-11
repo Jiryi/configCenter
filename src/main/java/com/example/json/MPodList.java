@@ -1,5 +1,8 @@
 package com.example.json;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.Configuration;
@@ -24,17 +27,31 @@ import io.kubernetes.client.util.KubeConfig;
  * 返回pod列表
  *
  */
-public class PodList {
-    private List< Pod > names;
+public class MPodList {
+    private List< MPod > mPodList = new ArrayList< MPod >();
 
-    public List< String > getNames() {
-        return names;
+    public List< MPod > getNames() {
+        return mPodList;
     }
 
-    public void set(ListV1Pod v1Pod) {
-        this.name = name;
+    public void set(V1PodList v1PodList) {
+        for(int index = 0; index < v1PodList.getItems().size(); index++)
+        {
+        	MPod pod = new MPod();
+        	pod.set(v1PodList.getItems().get(index));
+        	mPodList.set(1, pod);
+        }
     }
-
-    public void setAll
+    
+    public void add(V1PodList v1PodList) {
+        for(int index = 0; index < v1PodList.getItems().size(); index++)
+        {
+        	MPod pod = new MPod();
+        	pod.set(v1PodList.getItems().get(index));
+        	System.out.println(pod);
+        	if(mPodList == null) mPodList.set(1, pod);
+        	else mPodList.add(pod);
+        }
+    }
 
 }
