@@ -1,6 +1,7 @@
 package com.example.model;
 
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -145,7 +146,7 @@ public class PodModel {
         this.message = v1Pod.getStatus().getMessage();
         this.podIP = v1Pod.getStatus().getPodIP();
         this.age = calculateDuration(v1Pod.getMetadata().getCreationTimestamp());
-        this.creationTime = v1Pod.getMetadata().getCreationTimestamp()；
+        this.creationTime = v1Pod.getMetadata().getCreationTimestamp();
         this.annotations = v1Pod.getMetadata().getAnnotations();
         this.labels = v1Pod.getMetadata().getLabels();
         this.restarts = 0;

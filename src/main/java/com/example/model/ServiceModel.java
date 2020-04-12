@@ -1,5 +1,7 @@
 package com.example.model;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
@@ -58,10 +60,26 @@ public class ServiceModel{
         return this.type;
     }
 
+    public DateTime getCreationTime() {
+        return this.creationTime;
+    }
+    
     public Map<String, String> getLabels() {
         return this.labels;
     }
-
+    
+    public Map<String, String> getPods()
+    {
+    	return this.pods;
+    }
+    
+    public Map<String, String> getSelector() {
+        return this.selector;
+    }
+    
+    public Map<String, String> getAnnotations() {
+        return this.annotations;
+    }
 
     public String getClusterIP() {
         return this.clusterIP;
@@ -150,7 +168,7 @@ public class ServiceModel{
         this.type = v1Service.getSpec().getType();
         this.clusterIP = v1Service.getSpec().getClusterIP();
         this.age = calculateDuration(v1Service.getMetadata().getCreationTimestamp());
-        this.creationTime = v1Service.getMetadata().getCreationTimestamp()；
+        this.creationTime = v1Service.getMetadata().getCreationTimestamp();
         this.annotations = v1Service.getMetadata().getAnnotations();
         this.selector = v1Service.getSpec().getSelector();
         getPods(v1Pods);
