@@ -108,7 +108,7 @@ public class ManagerSvcQuery {
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(value = "/queryService", method = RequestMethod.GET)
 @ResponseBody
-    public String queryService(@RequestBody Map<String, String> serviceInfo) throws ApiException, IOException {
+    public ServiceModel queryService(@RequestBody Map<String, String> serviceInfo) throws ApiException, IOException {
 //    public ServiceModel queryService() throws ApiException, IOException {
 		String kubeConfigPath = "C:\\Users\\jiryi\\config";
 
