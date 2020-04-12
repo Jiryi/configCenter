@@ -28,14 +28,18 @@ import io.kubernetes.client.proto.V1.PodList;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 
-public class SeriveModel{
+public class ServiceModel{
     private String name;         //service名字
     private String namespace;    //名空间
     private Map<String, String> labels;   //所有标签
+    private Map<String, String> selector; //label的一个属性？
+    private Map<String, String> annotations;
     private String type;         //service的访问类型,
                                  //include: ExternalName, ClusterIP, NodePort, and LoadBalancer.
     private String clusterIP;    //service的IP地址
     private String age;          //service年龄
+    private DateTime creationTime;//创建时间
+    private Map<String, String> pods;   //service包含的所有pod
     // private Float CPUs;       //CPU使用率
     // private Float Memory;     //内存使用情况
     // private Integer restarts; //重启次数
@@ -120,6 +124,16 @@ public class SeriveModel{
         return ret;
     }
 
+    private void getPods(List<V1Pod> v1Pods)
+    {
+        this.pods = new HashMap<String, String>();
+        for(int index = 0; index < v1Pods.size(); index++)
+        {
+            this.pods.put(v1Pods.get(index).getMetadata().getName(), 
+                                    v1Pods.get(index).getStatus().getPodIP());
+        }
+    }
+
     public void set(V1Service v1Service) {
         this.name = v1Service.getMetadata().getName();
         this.labels = v1Service.getMetadata().getLabels();
@@ -127,5 +141,21 @@ public class SeriveModel{
         this.type = v1Service.getSpec().getType();
         this.clusterIP = v1Service.getSpec().getClusterIP();
         this.age = calculateDuration(v1Service.getMetadata().getCreationTimestamp());
+    }
+
+    public void queryDetails(V1Service v1Service, List<V1Pod> v1Pods) {
+        this.name = v1Service.getMetadata().getName();
+        this.labels = v1Service.getMetadata().getLabels();
+        this.namespace = v1Service.getMetadata().getNamespace();
+        this.type = v1Service.getSpec().getType();
+        this.clusterIP = v1Service.getSpec().getClusterIP();
+        this.age = calculateDuration(v1Service.getMetadata().getCreationTimestamp());
+        this.creationTime = v1Service.getMetadata().getCreationTimestamp()；
+        this.annotations = v1Service.getMetadata().getAnnotations();
+        this.selector = v1Service.getSpec().getSelector();
+        getPods(v1Pods);
+        // this.restarts = 0;
+        // this.CPUs = (float) 0;
+        // this.Memory = (float) 0;
     }
 }

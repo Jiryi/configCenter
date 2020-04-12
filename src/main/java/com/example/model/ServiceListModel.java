@@ -27,12 +27,12 @@ import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 
 public class ServiceListModel {
-    private List< SeriveModel > serviceList = new ArrayList< SeriveModel >();
+    private List< ServiceModel > serviceList = new ArrayList< ServiceModel >();
 
     public void add(V1ServiceList v1SeriveList) {
         for(int index = 0; index < v1SeriveList.getItems().size(); index++)
         {
-        	SeriveModel service = new SeriveModel();
+        	ServiceModel service = new ServiceModel();
         	service.set(v1SeriveList.getItems().get(index));
         	if(serviceList == null) serviceList.set(1, service);
         	else serviceList.add(service);

@@ -34,65 +34,41 @@ import java.io.IOException;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/get")
-public class ManagerSvcController {
-@RequestMapping(value = "/getPods", method = RequestMethod.GET)
+public class ManagerSvcQuery {
+@RequestMapping(value = "/queryPod", method = RequestMethod.GET)
 @ResponseBody
-    public String getPods() throws ApiException, IOException {
-		//IOException 是操作输入流和输出流时可能出现的异常，ApiException
-    
-    	// file path to your KubeConfig，（若直接在项目下可以直接写文件名）
+    public PodModel queryPod(@RequestBody Map<String, String> podName) throws ApiException, IOException {    
     	String kubeConfigPath = "C:\\Users\\jiryi\\config";
-    
-    	// loading the out-of-cluster config, a kubeconfig from file-system
-    	//加载k8s,config
+
     	ApiClient client =
     			ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
       
-    	//将加载config的client设置为默认的client
     	Configuration.setDefaultApiClient(client);
-    
-    	// Configure API key authorization: BearerToken
-    	// ApiKeyAuth BearerToken = (ApiKeyAuth) client.getAuthentication("BearerToken");
-    	// BearerToken.setApiKey("YOUR API KEY");
-    	// Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
-    	//BearerToken.setApiKeyPrefix("Token");
-    	//  String namespace = "default"; 
-    	// String namespace1 = "istio-system";
-    	// String namespace2 = "istio-test";
-    	// String namespace3 = "kube-node-lease";
-    	// String namespace4 = "kube-public";
-    	// String namespace5 = "kube-system";
-    
-    
-    	// the CoreV1Api loads default api-client from global configuration.
-    	//创建一个api,这里用的是加了参数的，
+
     	CoreV1Api api = new CoreV1Api(client);
-    	//CoreV1Api apiInstance = new CoreV1Api();在这里有无括号都一样
-    	//String namespace = "default";
     	String pretty = "true"; 
-    	Boolean allowWatchBookmarks = true; 
-    	String _continue = null;
-    	String fieldSelector = null; 
-    	String labelSelector = null; 
-    	Integer limit = null; 
-    	String resourceVersion = null; 
-    	Integer timeoutSeconds = 56; 
-    	Boolean watch = false;
+    	Boolean export = true;
+		Boolean exact = true;
         
         PodListModel podListModel = new PodListModel();
         
         System.out.println("-----------------------------------");
-        System.out.println("             Pod List              ");
+        System.out.println("             Pod Query              ");
         System.out.println("-----------------------------------");
         try {
-          V1NamespaceList namespaceList = api.listNamespace(allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, timeoutSeconds, watch);
-          for(int namespaceIndex = 0; namespaceIndex < namespaceList.getItems().size(); namespaceIndex++)
-          {
-            V1PodList podList = api.listNamespacedPod(namespaceList.getItems().get(namespaceIndex).getMetadata().getName(),
-                                                      allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, null, watch);
-            podListModel.add(podList);
-          }          
-                    
+		  String podName, podNamespace;
+    	  if(map.containsKey("name")){
+          	podName = map.get("name").toString();
+    	  }
+
+		  if(map.containsKey("namespace")){
+          	podNamespace = map.get("namespace").toString();
+    	  }
+
+          V1Pod pod = api.readNamespacedPod(podName, podNamespace, pretty, exact, export);
+		  PodModel podModel;
+		  if(pod == null) podModel = null;
+		  podModel.queryDetails(pod);
         } catch (ApiException e) {
         //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
           System.err.println("Status code: " + e.getCode());
@@ -115,42 +91,21 @@ public class ManagerSvcController {
 //            e.printStackTrace();
 //          }
 
-        return podListModel.toJSON();
+        return podModel;
     }
 
 @CrossOrigin(origins = "http://localhost:3000")
-@RequestMapping(value = "/getServices", method = RequestMethod.GET)
-@ResponseBody
-    public String getServices() throws ApiException, IOException {
-		// file path to your KubeConfig，（若直接在项目下可以直接写文件名）
+@RequestMapping(value = "/queryService", method = RequestMethod.GET)
+    public String queryService(@RequestBody Map<String, String> serviceName) throws ApiException, IOException {
 		String kubeConfigPath = "C:\\Users\\jiryi\\config";
 
-		// loading the out-of-cluster config, a kubeconfig from file-system
-		//加载k8s,config
 		ApiClient client =
 				ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
   
-		//将加载config的client设置为默认的client
 		Configuration.setDefaultApiClient(client);
 
-		// Configure API key authorization: BearerToken
-		// ApiKeyAuth BearerToken = (ApiKeyAuth) client.getAuthentication("BearerToken");
-		// BearerToken.setApiKey("YOUR API KEY");
-		// Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
-		//BearerToken.setApiKeyPrefix("Token");
-		//  String namespace = "default"; 
-		// String namespace1 = "istio-system";
-		// String namespace2 = "istio-test";
-		// String namespace3 = "kube-node-lease";
-		// String namespace4 = "kube-public";
-		// String namespace5 = "kube-system";
-
-
-		// the CoreV1Api loads default api-client from global configuration.
-		//创建一个api,这里用的是加了参数的，
 		CoreV1Api api = new CoreV1Api(client);
-		//CoreV1Api apiInstance = new CoreV1Api();在这里有无括号都一样
-		//String namespace = "default";
+
 		String pretty = "true"; 
 		Boolean allowWatchBookmarks = true; 
 		String _continue = null;
@@ -164,15 +119,46 @@ public class ManagerSvcController {
 		ServiceListModel serviceListModel = new ServiceListModel();
         
         System.out.println("-----------------------------------");
-        System.out.println("           Service List            ");
+        System.out.println("          Query Service            ");
         System.out.println("-----------------------------------");
         try {
-          V1NamespaceList namespaceList = api.listNamespace(allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, timeoutSeconds, watch);
-          for(int namespaceIndex = 0; namespaceIndex < namespaceList.getItems().size(); namespaceIndex++)
-          {
-            V1ServiceList serviceList = api.listNamespacedService(namespaceList.getItems().get(namespaceIndex).getMetadata().getName(),
-                                                      allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, timeoutSeconds, watch);     
-            serviceListModel.add(serviceList);
+			String serviceName, serviceNamespace;
+    	  	if(map.containsKey("name")){
+          		serviceName = map.get("name").toString();
+    	  	}
+
+			if(map.containsKey("namespace")){
+          		serviceNamespace = map.get("namespace").toString();
+    	  	}
+			
+			V1Service service = api.readNamespacedService(serviceName, serviceNamespace, pretty, exact, export);
+			// Set<V1Pod> v1Pods = new HashSet<>();
+			List<V1Pod> pods = new ArrayList<>();
+			V1PodList podList = api.listNamespacedPod(serviceNamespace, allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, null, watch);
+            
+			Map<String, String> svclabels = service.getMetadata().getLabels();
+			for(int podlistIndex = 0; podlistIndex < podList.getItems().size(); podlistIndex++)
+			{
+				Boolean flag = false;
+				Map<String, String> podlabels = podList.getItems().get(podlistIndex).getMetadata().getLabels();
+				
+				Iterator<Entry<String, String>> svcIter = svclabels.entrySet().iterator();
+        		while(svcIter.hasNext()){
+            		 Map.Entry<String, String> svcEntry = (Entry<String, String>) svcIter.next();
+					 String svcLabel = svcEntry.getValue() == null?"":svcEntry.getValue();
+            		 String podLabel = podlabels.get(svcEntry.getKey())==null?"":podlabels.get(svcEntry.getKey());
+                  
+            		 if (m1value.equals(m2value)) {
+						 flag = true;
+						 break;
+            		 }
+				}
+				if(flag == true)
+					pods.add(podList.getItems().get(podlistIndex).get(podlistIndex));
+			}
+			ServiceModel serviceModel;
+		  	if(service == null) serviceModel = null;
+		  	serviceModel.queryDetails(service, pods);
           }          
                     
         } catch (ApiException e) {

@@ -35,6 +35,9 @@ public class PodModel {
     private String name;     //pod名字
     private String namespace;//名空间
     private String status;   //当前状态
+    private Map<String, String> labels;         //标签
+    private Map<String, String> annotations;    //注释
+    private DateTime creationTime;  //创建时间
     private String message;  //关于当前状态的具体信息以及异常导致原因
     private String podIP;    //pod的IP地址
     private Integer restarts; //重启次数
@@ -74,6 +77,10 @@ public class PodModel {
 
     public Float getCPUs() {
         return this.CPUs;
+    }
+
+    public Map<String, String> getLabels() {
+        return this.labels;
     }
 
     public Float getMemory() {
@@ -129,6 +136,21 @@ public class PodModel {
 //        this.CPUs = calculateCPU(v1Pod.getSpec().getContainers());     //CPU使用率
         this.CPUs = (float) 0;
         this.Memory = (float) 0;   //内存使用情况
+    }
+
+    public void queryDetails(V1Pod v1Pod) {
+        this.name = v1Pod.getMetadata().getName();
+        this.namespace = v1Pod.getMetadata().getNamespace();
+        this.status = v1Pod.getStatus().getPhase();
+        this.message = v1Pod.getStatus().getMessage();
+        this.podIP = v1Pod.getStatus().getPodIP();
+        this.age = calculateDuration(v1Pod.getMetadata().getCreationTimestamp());
+        this.creationTime = v1Pod.getMetadata().getCreationTimestamp()；
+        this.annotations = v1Pod.getMetadata().getAnnotations();
+        this.labels = v1Pod.getMetadata().getLabels();
+        this.restarts = 0;
+        this.CPUs = (float) 0;
+        this.Memory = (float) 0;
     }
 } 
 
