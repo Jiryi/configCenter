@@ -43,10 +43,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 @RestController
 
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/get")
 public class ManagerSvcQuery {
-@RequestMapping(value = "/queryPod", method = RequestMethod.GET)
+@RequestMapping(value = "/queryPod", method = RequestMethod.POST)
 @ResponseBody
     public PodModel queryPod(@RequestBody Map<String, String> podInfo) throws ApiException, IOException {    
     	String kubeConfigPath = "C:\\Users\\jiryi\\config";
@@ -105,8 +105,8 @@ public class ManagerSvcQuery {
         return podModel;
     }
 
-@CrossOrigin(origins = "http://localhost:3000")
-@RequestMapping(value = "/queryService", method = RequestMethod.GET)
+//@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping(value = "/queryService", method = RequestMethod.POST)
 @ResponseBody
     public ServiceModel queryService(@RequestBody Map<String, String> serviceInfo) throws ApiException, IOException {
 //    public ServiceModel queryService() throws ApiException, IOException {

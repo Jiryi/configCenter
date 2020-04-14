@@ -34,7 +34,7 @@ import java.io.FileReader;
 import java.io.IOException;
 @RestController
 
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/get")
 public class ManagerSvcController {
 @RequestMapping(value = "/getPods", method = RequestMethod.GET)
@@ -120,7 +120,7 @@ public class ManagerSvcController {
         return podListModel.toJSON();
     }
 
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(value = "/getServices", method = RequestMethod.GET)
 @ResponseBody
     public String getServices() throws ApiException, IOException {
