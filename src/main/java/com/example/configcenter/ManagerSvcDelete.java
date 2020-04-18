@@ -74,6 +74,7 @@ public class ManagerSvcDelete {
         System.out.println("-----------------------------------");
         System.out.println("            Pod Delete             ");
         System.out.println("-----------------------------------");
+        startTime = System.currentTimeMillis();
         try {
 		  String podName = "degrade-low-74555f8bd8-wsks5", podNamespace = "default";
     	  if(podInfo.containsKey("name")){
@@ -81,6 +82,8 @@ public class ManagerSvcDelete {
     	  } else {
               System.out.println("Cannot Find Or Resolve Field: \"name\".");
               System.out.println(deletePodFailed);
+              endTime = System.currentTimeMillis();
+    		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
               return "false";
           }
 
@@ -89,6 +92,8 @@ public class ManagerSvcDelete {
     	  } else {
               System.out.println("Cannot Find Or Resolve Field: \"namespace\".");
               System.out.println(deletePodFailed);
+              endTime = System.currentTimeMillis();
+    		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
               return "false";
           }
 
@@ -101,9 +106,13 @@ public class ManagerSvcDelete {
           System.err.println("Reason: " + e.getResponseBody());
           System.err.println("Response headers: " + e.getResponseHeaders());
           e.printStackTrace();
+          endTime = System.currentTimeMillis();
+    	  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
           return "false";
         }
         
+        endTime = System.currentTimeMillis();
+        System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
         System.out.println("-----------------------------------");
         System.out.println("          Delete Pod Done           ");
         System.out.println("-----------------------------------");
@@ -130,6 +139,7 @@ public class ManagerSvcDelete {
         System.out.println("-----------------------------------");
         System.out.println("          Sevice Delete            ");
         System.out.println("-----------------------------------");
+        startTime = System.currentTimeMillis();
         try {
 		  String svcName = "degrade-low-74555f8bd8-wsks5", svcNamespace = "default";
     	  if(svcInfo.containsKey("name")){
@@ -137,6 +147,8 @@ public class ManagerSvcDelete {
     	  } else {
               System.out.println("Cannot Find Or Resolve Field: \"name\".");
               System.out.println(deleteSvcFailed);
+              endTime = System.currentTimeMillis();
+    		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
               return "false";
           }
 
@@ -145,6 +157,8 @@ public class ManagerSvcDelete {
     	  } else {
               System.out.println("Cannot Find Or Resolve Field: \"namespace\".");
               System.out.println(deleteSvcFailed);
+              endTime = System.currentTimeMillis();
+    		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
               return "false";
           }
 
@@ -157,9 +171,13 @@ public class ManagerSvcDelete {
           System.err.println("Reason: " + e.getResponseBody());
           System.err.println("Response headers: " + e.getResponseHeaders());
           e.printStackTrace();
+          endTime = System.currentTimeMillis();
+    	  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
           return "false";
         }
-        
+
+        endTime = System.currentTimeMillis();
+    	System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
         System.out.println("-----------------------------------");
         System.out.println("        Delete Service Done        ");
         System.out.println("-----------------------------------");
