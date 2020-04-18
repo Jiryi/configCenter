@@ -61,7 +61,6 @@ public class ManagerSvcQuery {
     	Boolean export = true;
 		Boolean exact = true;
         
-        PodListModel podListModel = new PodListModel();
         PodModel podModel = new PodModel();
         
         System.out.println("-----------------------------------");
@@ -126,7 +125,6 @@ public class ManagerSvcQuery {
 		String labelSelector = null; 
 		Integer limit = null; 
 		String resourceVersion = null; 
-		Integer timeoutSeconds = 56; 
 		Boolean watch = false;
 		Boolean export = true;
 		Boolean exact = true;

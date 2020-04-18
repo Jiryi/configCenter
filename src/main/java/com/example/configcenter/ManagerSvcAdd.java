@@ -2,16 +2,22 @@ package com.example.configcenter;
 
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
+import io.kubernetes.client.ApiResponse;
 import io.kubernetes.client.Configuration;
 import io.kubernetes.client.ProtoClient;
 import io.kubernetes.client.ProtoClient.ObjectOrStatus;
 import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.auth.ApiKeyAuth;
+import io.kubernetes.client.custom.IntOrString;
+import io.kubernetes.client.models.V1Namespace;
+import io.kubernetes.client.models.V1NamespaceBuilder;
 import io.kubernetes.client.models.V1NamespaceList;
 import io.kubernetes.client.models.V1ObjectMeta;
 import io.kubernetes.client.models.V1Pod;
+import io.kubernetes.client.models.V1PodBuilder;
 import io.kubernetes.client.models.V1PodList;
 import io.kubernetes.client.models.V1Service;
+import io.kubernetes.client.models.V1ServiceBuilder;
 import io.kubernetes.client.models.V1ServiceList;
 import io.kubernetes.client.proto.Meta.ObjectMeta;
 import io.kubernetes.client.proto.V1.Namespace;
@@ -21,6 +27,7 @@ import io.kubernetes.client.proto.V1.PodList;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,10 +52,22 @@ import java.util.Map.Entry;
 
 // @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/post")
-public class ManagerSvcQuery {
+public class ManagerSvcAdd {
+	public static long startTime = 0L;
+	public static long endTime = 0L;
+	public static final String addPodFailed = "-----------------------------------\n"
+											+ "           Add Pod Failed          \n"
+											+ "-----------------------------------\n";
+	public static final String addSvcFailed = "-----------------------------------\n"
+											+ "         Add Service Failed        \n"
+											+ "-----------------------------------\n";
 @RequestMapping(value = "/addPod", method = RequestMethod.POST)
 @ResponseBody
-    public String addPod(@RequestBody Map<String, String> podInfo) throws ApiException, IOException {    
+    	public String addPod(@RequestBody Map<String, String> podInfo) throws ApiException, IOException {   
+		System.out.println("-----------------------------------");
+    	System.out.println("              Add Pod              ");
+    	System.out.println("-----------------------------------");
+    	startTime = System.currentTimeMillis();
     	String kubeConfigPath = "C:\\Users\\jiryi\\config";
 
     	ApiClient client =
@@ -57,30 +76,55 @@ public class ManagerSvcQuery {
     	Configuration.setDefaultApiClient(client);
 
     	CoreV1Api api = new CoreV1Api(client);
+    	Boolean includeUninitialized = true;
         String pretty = "true"; // String | If 'true', then the output is pretty printed.
-        String dryRun = "All"; 
+        String dryRun = null; 
 
-        System.out.println("-----------------------------------");
-        System.out.println("              Add Pod              ");
-        System.out.println("-----------------------------------");
+        V1Namespace namespace;
+        String podName = null, podNamespace = null;
         try {
-          V1Namespace namespace;
-		  String podName = null, podNamespace = null;
     	  if(podInfo.containsKey("name")){
-          	podName = podInfo.get("name").toString();
-    	  } else return "false";
+    		  podName = podInfo.get("name").toString();
+    	  } else {
+    		  endTime = System.currentTimeMillis();
+    		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+    		  System.out.println(addPodFailed);
+    		  return "false";
+    	  }
         
 		  if(podInfo.containsKey("namespace")){
           	podNamespace = podInfo.get("namespace").toString();
-            namespace = api.readNamespace("name", null, null, null);
-    	  } else return "false";
-
-          if(namespace == null)
-          {
-              V1Namespace namespaceBody = new V1Namespace();
-              namespace = api.createNamespace(namespaceBody, pretty, dryRun, (new DateTime()).toString());
+            namespace = api.readNamespace(podNamespace, null, null, null);
+    	  } else {
+    		  endTime = System.currentTimeMillis();
+    		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+    		  System.out.println(addPodFailed);
+    		  return "false";
+    	  }
+        } catch (ApiException e) {
+            //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
+            System.err.println("Out Of Exception: " + e.getResponseBody());
+//            System.err.println("Response headers: " + e.getResponseHeaders());
+            if(e.getCode() == 404)
+            {
+            	System.out.println("Creating New Namespace: [ " + podNamespace + " ]");
+            	System.out.println("Loading...");
+            	startTime = System.currentTimeMillis();
+            	namespace = new V1NamespaceBuilder()
+            			.withNewMetadata()
+            			.withName(podNamespace)
+            			.endMetadata()
+            			.withNewApiVersion("v1")
+            			.build();
+            	api.createNamespace(namespace, includeUninitialized, pretty, dryRun);
+            	endTime = System.currentTimeMillis();
+            	System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+            	System.out.println("Create Namespace " + podNamespace + " Success.");
+            	System.out.println("Created.\n");
+            }
           }
-
+          
+          try {
           V1Pod pod = new V1PodBuilder()
                         .withNewMetadata()
                         .withName(podName)
@@ -92,15 +136,19 @@ public class ManagerSvcQuery {
                         .endContainer()
                         .endSpec()
                         .build();
-          V1Pod v1Pod = api.createNamespacedPod(namespace, pod, pretty, dryRun, (new DateTime()).toString());
-          if(v1Pod == null) return "false";
+          V1Pod v1pod = api.createNamespacedPod(podNamespace, pod, includeUninitialized, pretty, dryRun);
+          endTime = System.currentTimeMillis();
+          System.out.println("Create Pod " + v1pod.getMetadata().getName() + " Successful!");
+          System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
     
         } catch (ApiException e) {
         //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
           System.err.println("Status code: " + e.getCode());
           System.err.println("Reason: " + e.getResponseBody());
-          System.err.println("Response headers: " + e.getResponseHeaders());
-          e.printStackTrace();
+          endTime = System.currentTimeMillis();
+		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+    	  System.out.println(addPodFailed);
+    	  return "false";
         }
         
         System.out.println("-----------------------------------");
@@ -111,11 +159,13 @@ public class ManagerSvcQuery {
     }
 
 // @CrossOrigin(origins = "http://localhost:3000")
-@RequestMapping("/post")
-public class ManagerSvcQuery {
 @RequestMapping(value = "/addService", method = RequestMethod.POST)
 @ResponseBody
-    public String addPod(@RequestBody Map<String, String> podInfo) throws ApiException, IOException {    
+    public String addService(@RequestBody Map<String, String> svcInfo) throws ApiException, IOException {   
+		System.out.println("-----------------------------------");
+    	System.out.println("            Add Service            ");
+    	System.out.println("-----------------------------------");
+    	startTime = System.currentTimeMillis();
     	String kubeConfigPath = "C:\\Users\\jiryi\\config";
 
     	ApiClient client =
@@ -126,58 +176,88 @@ public class ManagerSvcQuery {
     	CoreV1Api api = new CoreV1Api(client);
         String pretty = "true"; // String | If 'true', then the output is pretty printed.
         String dryRun = "All"; 
+        Boolean includeUninitialized = true;
 
-        System.out.println("-----------------------------------");
-        System.out.println("            Add Service            ");
-        System.out.println("-----------------------------------");
+        V1Namespace namespace;
+        String svcName = null, svcNamespace = null;
         try {
-          V1Namespace namespace;
-		  String svcName = null, svcNamespace = null;
-    	  if(podInfo.containsKey("name")){
-          	svcName = podInfo.get("name").toString();
-    	  } else return "false";
+    	  if(svcInfo.containsKey("name")){
+          	svcName = svcInfo.get("name").toString();
+    	  } else {
+    		  endTime = System.currentTimeMillis();
+    		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+    		  System.out.println(addSvcFailed);
+    		  return "false";
+    	  }
         
-		  if(podInfo.containsKey("namespace")){
-          	svcNamespace = podInfo.get("namespace").toString();
-            namespace = api.readNamespace("name", null, null, null);
-    	  } else return "false";
-
-          if(namespace == null)
-          {
-              V1Namespace namespaceBody = new V1Namespace();
-              namespaceBody.getMetadata().setName(svcNamespace);
-              namespace = api.createNamespace(namespaceBody, pretty, dryRun, (new DateTime()).toString());
+		  if(svcInfo.containsKey("namespace")){
+          	svcNamespace = svcInfo.get("namespace").toString();
+            namespace = api.readNamespace(svcNamespace, null, null, null);
+    	  } else {
+    		  endTime = System.currentTimeMillis();
+    		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+    		  System.out.println(addSvcFailed);
+    		  return "false";
+    	  }
+        } catch (ApiException e) {
+            //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
+            System.err.println("Out Of Exception: " + e.getResponseBody());
+//            System.err.println("Response headers: " + e.getResponseHeaders());
+            if(e.getCode() == 404)
+            {
+            	System.out.println("Creating New Namespace: [ " + svcNamespace + " ]");
+            	System.out.println("Loading...");
+            	namespace = new V1NamespaceBuilder()
+            			.withNewMetadata()
+            			.withName(svcNamespace)
+            			.endMetadata()
+            			.withNewApiVersion("v1")
+            			.build();
+            	api.createNamespace(namespace, includeUninitialized, pretty, dryRun);
+            	endTime = System.currentTimeMillis();
+            	System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+            	System.out.println("Create Namespace " + svcNamespace + " Success.");
+            	System.out.println("Created.\n");
+            }
           }
 
+		try {
+		  startTime = System.currentTimeMillis();
           V1Service svc =new V1ServiceBuilder()
+            .withApiVersion("v1")
+            .withKind("Service")
             .withNewMetadata()
             .withName(svcName)
             .endMetadata()
             .withNewSpec()
             .withSessionAffinity("ClientIP")
-            .withType("NodePort")
+            .withType("ClusterIP")
             .addNewPort()
             .withProtocol("TCP")
             .withName("client")
             .withPort(8008)
-            .withNodePort(8080)
             .withTargetPort(new IntOrString(8080))
             .endPort()
             .endSpec()
             .build();
-          V1Service v1Svc = api.createNamespacedPod(namespace, svc, pretty, dryRun, (new DateTime()).toString());
-          if(v1Svc == null) return "false";
+
+          V1Service v1service = api.createNamespacedService(svcNamespace, svc, null, pretty, null);
+          endTime = System.currentTimeMillis();
+          System.out.println("Create Service " + v1service.getMetadata().getName() + " Successful!");
+          System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
     
         } catch (ApiException e) {
         //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
           System.err.println("Status code: " + e.getCode());
           System.err.println("Reason: " + e.getResponseBody());
-          System.err.println("Response headers: " + e.getResponseHeaders());
-          e.printStackTrace();
+          endTime = System.currentTimeMillis();
+		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+          System.out.println(addSvcFailed);
+          return "false";
         }
         
         System.out.println("-----------------------------------");
-        System.out.println("            Add Pod Done           ");
+        System.out.println("          Add Service Done         ");
         System.out.println("-----------------------------------");
 
         return "true";
