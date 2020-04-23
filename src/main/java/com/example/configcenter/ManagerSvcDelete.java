@@ -7,12 +7,14 @@ import io.kubernetes.client.ProtoClient;
 import io.kubernetes.client.ProtoClient.ObjectOrStatus;
 import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.auth.ApiKeyAuth;
+import io.kubernetes.client.models.V1DeleteOptions;
 import io.kubernetes.client.models.V1NamespaceList;
 import io.kubernetes.client.models.V1ObjectMeta;
 import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.models.V1PodList;
 import io.kubernetes.client.models.V1Service;
 import io.kubernetes.client.models.V1ServiceList;
+import io.kubernetes.client.models.V1Status;
 import io.kubernetes.client.proto.Meta.ObjectMeta;
 import io.kubernetes.client.proto.V1.Namespace;
 import io.kubernetes.client.proto.V1.NamespaceSpec;
@@ -56,7 +58,7 @@ public class ManagerSvcDelete {
     										   + "-----------------------------------\n";
 @RequestMapping(value = "/deletePod", method = RequestMethod.POST)
 @ResponseBody
-    public PodModel deletePod(@RequestBody Map<String, String> podInfo) throws ApiException, IOException {    
+    public String deletePod(@RequestBody Map<String, String> podInfo) throws ApiException, IOException {    
     	String kubeConfigPath = "C:\\Users\\jiryi\\config";
 
     	ApiClient client =
@@ -75,15 +77,15 @@ public class ManagerSvcDelete {
         System.out.println("            Pod Delete             ");
         System.out.println("-----------------------------------");
         startTime = System.currentTimeMillis();
+        String podName = "degrade-low-74555f8bd8-wsks5", podNamespace = "default";
         try {
-		  String podName = "degrade-low-74555f8bd8-wsks5", podNamespace = "default";
     	  if(podInfo.containsKey("name")){
           	podName = podInfo.get("name").toString();
     	  } else {
               System.out.println("Cannot Find Or Resolve Field: \"name\".");
-              System.out.println(deletePodFailed);
               endTime = System.currentTimeMillis();
     		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+    		  System.out.println(deletePodFailed);
               return "false";
           }
 
@@ -91,24 +93,46 @@ public class ManagerSvcDelete {
           	podNamespace = podInfo.get("namespace").toString();
     	  } else {
               System.out.println("Cannot Find Or Resolve Field: \"namespace\".");
-              System.out.println(deletePodFailed);
               endTime = System.currentTimeMillis();
     		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+    		  System.out.println(deletePodFailed);
               return "false";
           }
-
-		  V1Status result = api.deleteNamespacedPod(podName, podNamespace, pretty, dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy, null);
-          System.out.println(result);
+		  V1DeleteOptions body = new V1DeleteOptions();
+		  V1Status result = api.deleteNamespacedPod(podName, podNamespace, pretty, body, dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy);
+		  if(!result.getStatus().equals("Success"))
+          {
+        	  System.out.println(result);
+          }
         } catch (ApiException e) {
-        //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
-          System.err.println("Exception when calling CoreV1Api#deleteNamespacedPod");
-          System.err.println("Status code: " + e.getCode());
-          System.err.println("Reason: " + e.getResponseBody());
-          System.err.println("Response headers: " + e.getResponseHeaders());
-          e.printStackTrace();
-          endTime = System.currentTimeMillis();
-    	  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
-          return "false";
+            System.err.println("Exception when calling CoreV1Api#deleteNamespacedPod");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+            endTime = System.currentTimeMillis();
+            System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+            System.out.println(deletePodFailed);
+            return "false";
+        } catch (Exception e) {
+        	IllegalStateException ise = (IllegalStateException) e.getCause();
+            if (ise.getMessage() != null && ise.getMessage().contains("Expected a string but was BEGIN_OBJECT")) {
+                System.out.println("Catching exception because of issue https://github.com/kubernetes/kubernetes/issues/65121");
+                System.out.println("Actually delete pod \"" + podName + "\" success.");
+                endTime = System.currentTimeMillis();
+                System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+                System.out.println("-----------------------------------");
+                System.out.println("          Delete Pod Done           ");
+                System.out.println("-----------------------------------");
+                return "true";
+            } else {
+            	System.out.println("Out Of Exception");
+            	e.printStackTrace();
+            	endTime = System.currentTimeMillis();
+                System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+                System.out.println(deletePodFailed);
+                return "false";
+            }
         }
         
         endTime = System.currentTimeMillis();
@@ -121,7 +145,7 @@ public class ManagerSvcDelete {
 
 @RequestMapping(value = "/deleteService", method = RequestMethod.POST)
 @ResponseBody
-    public PodModel deleteService(@RequestBody Map<String, String> svcInfo) throws ApiException, IOException {    
+    public String deleteService(@RequestBody Map<String, String> svcInfo) throws ApiException, IOException {    
     	String kubeConfigPath = "C:\\Users\\jiryi\\config";
 
     	ApiClient client =
@@ -146,9 +170,9 @@ public class ManagerSvcDelete {
           	svcName = svcInfo.get("name").toString();
     	  } else {
               System.out.println("Cannot Find Or Resolve Field: \"name\".");
-              System.out.println(deleteSvcFailed);
               endTime = System.currentTimeMillis();
     		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+    		  System.out.println(deleteSvcFailed);
               return "false";
           }
 
@@ -156,14 +180,18 @@ public class ManagerSvcDelete {
           	svcNamespace = svcInfo.get("namespace").toString();
     	  } else {
               System.out.println("Cannot Find Or Resolve Field: \"namespace\".");
-              System.out.println(deleteSvcFailed);
               endTime = System.currentTimeMillis();
     		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+    		  System.out.println(deleteSvcFailed);
               return "false";
           }
-
-		  V1Status result = api.deleteNamespacedService(svcName, svcNamespace, pretty, dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy, null);
-          System.out.println(result);
+		  
+		  V1DeleteOptions body = new V1DeleteOptions();
+		  V1Status result = api.deleteNamespacedService(svcName, svcNamespace, pretty, body, dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy);
+          if(!result.getStatus().equals("Success"))
+          {
+        	  System.out.println(result);
+          }
         } catch (ApiException e) {
         //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
           System.err.println("Exception when calling CoreV1Api#deleteNamespacedService");
@@ -173,6 +201,7 @@ public class ManagerSvcDelete {
           e.printStackTrace();
           endTime = System.currentTimeMillis();
     	  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+    	  System.out.println(deleteSvcFailed);
           return "false";
         }
 
@@ -183,3 +212,4 @@ public class ManagerSvcDelete {
         System.out.println("-----------------------------------");
         return "true";
     }
+}
