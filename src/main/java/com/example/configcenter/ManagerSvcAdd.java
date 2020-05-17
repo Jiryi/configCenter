@@ -68,7 +68,7 @@ public class ManagerSvcAdd {
     	System.out.println("              Add Pod              ");
     	System.out.println("-----------------------------------");
     	startTime = System.currentTimeMillis();
-    	String kubeConfigPath = "C:\\Users\\jiryi\\config";
+    	String kubeConfigPath = "config";
 
     	ApiClient client =
     			ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
@@ -166,7 +166,7 @@ public class ManagerSvcAdd {
     	System.out.println("            Add Service            ");
     	System.out.println("-----------------------------------");
     	startTime = System.currentTimeMillis();
-    	String kubeConfigPath = "C:\\Users\\jiryi\\config";
+    	String kubeConfigPath = "config";
 
     	ApiClient client =
     			ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();

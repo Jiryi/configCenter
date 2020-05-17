@@ -59,7 +59,7 @@ public class ManagerSvcDelete {
 @RequestMapping(value = "/deletePod", method = RequestMethod.POST)
 @ResponseBody
     public String deletePod(@RequestBody Map<String, String> podInfo) throws ApiException, IOException {    
-    	String kubeConfigPath = "C:\\Users\\jiryi\\config";
+		String kubeConfigPath = "config";
 
     	ApiClient client =
     			ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
@@ -146,7 +146,7 @@ public class ManagerSvcDelete {
 @RequestMapping(value = "/deleteService", method = RequestMethod.POST)
 @ResponseBody
     public String deleteService(@RequestBody Map<String, String> svcInfo) throws ApiException, IOException {    
-    	String kubeConfigPath = "C:\\Users\\jiryi\\config";
+		String kubeConfigPath = "config";
 
     	ApiClient client =
     			ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
@@ -187,7 +187,8 @@ public class ManagerSvcDelete {
           }
 		  
 		  V1DeleteOptions body = new V1DeleteOptions();
-		  V1Status result = api.deleteNamespacedService(svcName, svcNamespace, pretty, body, dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy);
+		  V1Status result = api.deleteNamespacedService(svcName, svcNamespace, pretty, 
+				  body, dryRun, gracePeriodSeconds, orphanDependents, propagationPolicy);
           if(!result.getStatus().equals("Success"))
           {
         	  System.out.println(result);

@@ -47,7 +47,7 @@ import java.util.Map.Entry;
 
 //@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/post")
-public class ManagerSvcDelete {
+public class ManagerSvcUpdate {
     public static long startTime = 0L;
     public static long endTime = 0L;
     public static final String updatePodFailed = "-----------------------------------\n"
@@ -59,7 +59,7 @@ public class ManagerSvcDelete {
 @RequestMapping(value = "/updatePod", method = RequestMethod.POST)
 @ResponseBody
     public String updatePod(@RequestBody Map<String, String> podInfo) throws ApiException, IOException {    
-    	String kubeConfigPath = "C:\\Users\\jiryi\\config";
+    	String kubeConfigPath = "config";
 
     	ApiClient client =
     			ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
@@ -69,7 +69,6 @@ public class ManagerSvcDelete {
     	CoreV1Api api = new CoreV1Api(client);
     	String pretty = "true"; 
         String dryRun = null; // String | When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed
-        Boolean force = true;
 
         System.out.println("-----------------------------------");
         System.out.println("            Pod Update             ");
@@ -108,7 +107,7 @@ public class ManagerSvcDelete {
               return "false";
           }
 
-		  V1Pod result = api.patchNamespacedPod(podName, podNamespace, patchBody, pretty, dryRun, null, force);
+		  V1Pod result = api.patchNamespacedPod(podName, podNamespace, patchBody, pretty, dryRun);
 
 		  if(!result.getStatus().equals("Success"))
           {
@@ -119,13 +118,6 @@ public class ManagerSvcDelete {
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
-            e.printStackTrace();
-            endTime = System.currentTimeMillis();
-            System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
-            System.out.println(updatePodFailed);
-            return "false";
-        } catch (ApiException e) {
-            System.out.println("Out Of Exception");
             e.printStackTrace();
             endTime = System.currentTimeMillis();
             System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
@@ -144,7 +136,7 @@ public class ManagerSvcDelete {
 @RequestMapping(value = "/updateService", method = RequestMethod.POST)
 @ResponseBody
     public String updateService(@RequestBody Map<String, String> svcInfo) throws ApiException, IOException {    
-    	String kubeConfigPath = "C:\\Users\\jiryi\\config";
+    	String kubeConfigPath = "config";
 
     	ApiClient client =
     			ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
@@ -154,7 +146,6 @@ public class ManagerSvcDelete {
     	CoreV1Api api = new CoreV1Api(client);
     	String pretty = "true"; 
         String dryRun = null; // String | When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed
-        Boolean force = true;      
                   
         System.out.println("-----------------------------------");
         System.out.println("          Sevice Update            ");
@@ -183,8 +174,8 @@ public class ManagerSvcDelete {
               return "false";
           }
 
-          if(podInfo.containsKey("patch")){
-          	patchBody = podInfo.get("patch").toString();
+          if(svcInfo.containsKey("patch")){
+          	patchBody = svcInfo.get("patch").toString();
     	  } else {
               System.out.println("Cannot Find Or Resolve Field: \"patch\".");
               endTime = System.currentTimeMillis();
@@ -193,7 +184,7 @@ public class ManagerSvcDelete {
               return "false";
           }
 		  
-          V1Service result = api.patchNamespacedService(svcName, svcNamespace, patchBody, pretty, dryRun, null, force);
+          V1Service result = api.patchNamespacedService(svcName, svcNamespace, patchBody, pretty, dryRun);
 
           if(!result.getStatus().equals("Success"))
           {
@@ -211,6 +202,29 @@ public class ManagerSvcDelete {
     	  System.out.println(updateSvcFailed);
           return "false";
         }
+
+        endTime = System.currentTimeMillis();
+    	System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+        System.out.println("-----------------------------------");
+        System.out.println("        Update Service Done        ");
+        System.out.println("-----------------------------------");
+        return "true";
+    }
+
+@RequestMapping(value = "/updsvc", method = RequestMethod.GET)
+@ResponseBody
+    public String hahaha() throws ApiException, IOException {    
+        System.out.println("-----------------------------------");
+        System.out.println("          Sevice Update            ");
+        System.out.println("-----------------------------------");
+        startTime = System.currentTimeMillis();
+        
+        try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
         endTime = System.currentTimeMillis();
     	System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");

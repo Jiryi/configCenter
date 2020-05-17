@@ -171,7 +171,9 @@ public class ServiceModel{
         this.creationTime = v1Service.getMetadata().getCreationTimestamp();
         this.annotations = v1Service.getMetadata().getAnnotations();
         this.selector = v1Service.getSpec().getSelector();
-        getPods(v1Pods);
+        if(v1Pods != null && v1Pods.size() != 0) {
+        	getPods(v1Pods);
+        }
         // this.restarts = 0;
         // this.CPUs = (float) 0;
         // this.Memory = (float) 0;

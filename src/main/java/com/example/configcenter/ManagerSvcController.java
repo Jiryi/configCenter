@@ -43,7 +43,7 @@ public class ManagerSvcController {
 		//IOException 是操作输入流和输出流时可能出现的异常，ApiException
     
     	// file path to your KubeConfig，（若直接在项目下可以直接写文件名）
-    	String kubeConfigPath = "C:\\Users\\jiryi\\config";
+		String kubeConfigPath = "config";
     
     	// loading the out-of-cluster config, a kubeconfig from file-system
     	//加载k8s,config
@@ -125,7 +125,7 @@ public class ManagerSvcController {
 @ResponseBody
     public String getServices() throws ApiException, IOException {
 		// file path to your KubeConfig，（若直接在项目下可以直接写文件名）
-		String kubeConfigPath = "C:\\Users\\jiryi\\config";
+		String kubeConfigPath = "config";
 
 		// loading the out-of-cluster config, a kubeconfig from file-system
 		//加载k8s,config
@@ -172,8 +172,10 @@ public class ManagerSvcController {
           V1NamespaceList namespaceList = api.listNamespace(allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, timeoutSeconds, watch);
           for(int namespaceIndex = 0; namespaceIndex < namespaceList.getItems().size(); namespaceIndex++)
           {
-            V1ServiceList serviceList = api.listNamespacedService(namespaceList.getItems().get(namespaceIndex).getMetadata().getName(),
-                                                      allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, timeoutSeconds, watch);     
+            V1ServiceList serviceList = api.listNamespacedService(
+            		namespaceList.getItems().get(namespaceIndex).getMetadata().getName(),
+                    allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector,
+                    limit, resourceVersion, timeoutSeconds, watch);     
             serviceListModel.add(serviceList);
           }          
                     

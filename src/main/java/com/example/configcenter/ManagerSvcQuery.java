@@ -49,7 +49,7 @@ public class ManagerSvcQuery {
 @RequestMapping(value = "/queryPod", method = RequestMethod.POST)
 @ResponseBody
     public PodModel queryPod(@RequestBody Map<String, String> podInfo) throws ApiException, IOException {    
-    	String kubeConfigPath = "C:\\Users\\jiryi\\config";
+    	String kubeConfigPath = "config";
 
     	ApiClient client =
     			ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
@@ -109,7 +109,7 @@ public class ManagerSvcQuery {
 @ResponseBody
     public ServiceModel queryService(@RequestBody Map<String, String> serviceInfo) throws ApiException, IOException {
 //    public ServiceModel queryService() throws ApiException, IOException {
-		String kubeConfigPath = "C:\\Users\\jiryi\\config";
+		String kubeConfigPath = "config";
 
 		ApiClient client =
 				ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
@@ -150,6 +150,8 @@ public class ManagerSvcQuery {
 			V1PodList podList = api.listNamespacedPod(serviceNamespace, allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, null, watch);
             
 			Map<String, String> svclabels = service.getMetadata().getLabels();
+			if(svclabels != null && svclabels.size() != 0)
+			{
 			for(int podlistIndex = 0; podlistIndex < podList.getItems().size(); podlistIndex++)
 			{
 				Boolean flag = false;
@@ -170,6 +172,7 @@ public class ManagerSvcQuery {
 				{
 					pods.add(podList.getItems().get(podlistIndex));
 				}
+			}
 			}
 		  	if(service != null)
 		  		serviceModel.queryDetails(service, pods);         

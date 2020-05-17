@@ -2,6 +2,11 @@ package com.example.configcenter;
 
 import java.sql.*;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@RequestMapping("/get")
 class JdbcConnection
 {	
 	Connection conn = null;
@@ -11,6 +16,8 @@ class JdbcConnection
 	//创建一个用于接收结果集的对象
 	ResultSet rs = null;
 	//默认构造函数
+	
+	
 	public JdbcConnection()
 	{
 		try {
@@ -20,9 +27,9 @@ class JdbcConnection
 			conn = DriverManager.getConnection
 				("jdbc:mysql://10.109.252.84:3306/service_database?user=root&password=123456" );   
 			if(!conn.isClosed())
-29                 System.out.println("Succeeded connecting to the Database!");		  
+                 System.out.println("Succeeded connecting to the Database!");		  
 			//查询
-			ps = ct.prepareStatement("select * from service_table");
+			ps = conn.prepareStatement("select * from service_table");
 			//得到结果
 			rs = ps.executeQuery();
 			//循环输出
@@ -34,6 +41,7 @@ class JdbcConnection
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
+			System.out.println("noooooo!!!");
 			e.printStackTrace();
 		}finally
 		{
@@ -47,9 +55,9 @@ class JdbcConnection
 				{
 					ps.close();
 				}
-				if(ct != null)
+				if(conn != null)
 				{
-					ct.close();
+					conn.close();
 				}
 			} catch (Exception e2) {
 				// TODO: handle exception
@@ -57,9 +65,13 @@ class JdbcConnection
 			}
 			
 		}
-		
+	}
+	
+	@RequestMapping(value = "/connectDB", method = RequestMethod.GET)
+	@ResponseBody
+	public String connectDatabase()
+	{
+		JdbcConnection jdbcConnect = new JdbcConnection();
+		return "true";
 	}
 }
-————————————————
-版权声明：本文为CSDN博主「wtu刘猛」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/weixin_38588973/java/article/details/78544380
