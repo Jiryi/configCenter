@@ -11,6 +11,8 @@ public class ConfigcenterApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ConfigcenterApplication.class, args);
+
+        // public static ThirdParty thirdParty = new ThirdParty();
     }
 
     @Bean
