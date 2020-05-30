@@ -206,7 +206,7 @@ public class ManagerSvcUpdate {
         endTime = System.currentTimeMillis();
     	System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
         System.out.println("-----------------------------------");
-        System.out.println("        Update Service Done        ");
+        System.out.println("        Search Service Done        ");
         System.out.println("-----------------------------------");
         return "true";
     }
