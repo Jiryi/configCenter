@@ -21,6 +21,8 @@ import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 
 import org.json.JSONArray;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,14 +31,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.model.PodListModel;
 import com.example.model.ServiceListModel;
-import con.example.model.ThirdParty;
+import com.example.model.ThirdParty;
 
 import java.io.FileReader;
 import java.io.IOException;
 @RestController
-
 @RequestMapping("/get")
 public class ManagerSvcController {
+	@Autowired
+	  private ThirdParty thirdParty;	
+	
 @RequestMapping(value = "/getPods", method = RequestMethod.GET)
 @ResponseBody
     public String getPods() throws ApiException, IOException {
@@ -65,9 +69,8 @@ public class ManagerSvcController {
         System.out.println("             Pod List              ");
         System.out.println("-----------------------------------");
         try {
-		  ThirdParty thirdParty = new ThirdParty();
-		  String podStatusString = thirdParty.updatePodStatus();
-		  System.out.println(podStatusString);
+//		  String podStatusString = thirdParty.updatePodStatus();
+//		  System.out.println(podStatusString);
 			
           V1NamespaceList namespaceList = api.listNamespace(allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, timeoutSeconds, watch);
           for(int namespaceIndex = 0; namespaceIndex < namespaceList.getItems().size(); namespaceIndex++)
