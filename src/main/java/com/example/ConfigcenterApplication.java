@@ -24,6 +24,7 @@ public class ConfigcenterApplication {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**").allowedOrigins("http://localhost:3000");
                 registry.addMapping("/**").allowedOrigins("http://121.199.28.228:8088");
+                registry.addMapping("/**").allowedOrigins("*");
             }
         };
     }

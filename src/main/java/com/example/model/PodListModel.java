@@ -56,9 +56,31 @@ public class PodListModel {
         }
     }
 
-    public String toJSON() {
+    public String toJSON(String podStatusString) {
         JSONArray json = new JSONArray();
         try{
+        String regex = "[a-z]+\\s+\\d+m\\s+\\d+Mi";
+        List<String> list = new ArrayList<String>();
+		Pattern pattern = Pattern.compile(regex);
+		Matcher m = pattern.matcher(podStatusString);
+		while (m.find()) {
+            int i = 1;  
+            list.add(m.group(i));  
+            i++;
+        }
+
+        Map<String, Pair<Integer, Integer> > mapStatus = new HashMap<>(); 
+        for (String str : list) {
+            String[] name;
+            String[] cpu;
+            String[] memory;
+            name = str.split("\\s");
+            cpu = name[1].split("m");
+            memory = name[2].split("Mi");
+
+            mapStatus.put( name[0], new Pair<>(Integer.valueOf(cpu[0]), Integer.valueOf(memory[0])));
+        }
+        
         for(int index = 0; index < podList.size(); index++)
         {
             JSONObject jo = new JSONObject();
@@ -69,8 +91,16 @@ public class PodListModel {
             jo.put("age",      podList.get(index).getAge());
             // jo.put("restarts", mPodList.get(index).getRestarts());
             // jo.put("message",  mPodList.get(index).getMessage());
-            // jo.put("CPUs",     mPodList.get(index).getCPUs());
-            // jo.put("Memory",   mPodList.get(index).getMemory());
+            if(mapStatus.containsKey(jo.get("name")))
+            {
+                jo.put("Memory",   mapStatus.get(jo.get("name")).getValue());
+                jo.put("CPUs",     mapStatus.get(jo.get("name")).getKey());
+            } else 
+            {
+                jo.put("Memory",   -1);
+                jo.put("CPUs",     -1);
+            }
+            
             json.put(jo);
         }
         } catch (Exception e) {

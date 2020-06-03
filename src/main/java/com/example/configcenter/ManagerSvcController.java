@@ -62,15 +62,16 @@ public class ManagerSvcController {
     	String resourceVersion = null; 
     	Integer timeoutSeconds = 56; 
     	Boolean watch = false;
-        
+      String podStatusString = null;
+
         PodListModel podListModel = new PodListModel();
         
         System.out.println("-----------------------------------");
         System.out.println("             Pod List              ");
         System.out.println("-----------------------------------");
         try {
-//		  String podStatusString = thirdParty.updatePodStatus();
-//		  System.out.println(podStatusString);
+		    podStatusString = thirdParty.updatePodStatus();
+  		  System.out.println(podStatusString);
 			
           V1NamespaceList namespaceList = api.listNamespace(allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, timeoutSeconds, watch);
           for(int namespaceIndex = 0; namespaceIndex < namespaceList.getItems().size(); namespaceIndex++)
@@ -78,7 +79,7 @@ public class ManagerSvcController {
             V1PodList podList = api.listNamespacedPod(namespaceList.getItems().get(namespaceIndex).getMetadata().getName(),
                                                       allowWatchBookmarks, pretty, _continue, fieldSelector, labelSelector, limit, resourceVersion, null, watch);
             podListModel.add(podList);
-          }          
+          }
                     
         } catch (ApiException e) {
           System.err.println("Status code: " + e.getCode());
@@ -101,7 +102,7 @@ public class ManagerSvcController {
 //            e.printStackTrace();
 //          }
 
-        return podListModel.toJSON();
+        return podListModel.toJSON(podStatusString);
     }
 
 //@CrossOrigin(origins = "http://localhost:3000")

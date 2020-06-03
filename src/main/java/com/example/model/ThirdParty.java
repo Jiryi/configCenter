@@ -18,7 +18,7 @@ import java.util.Properties;
 
 
 @Component    
-@PropertySource(value = "classpath:application.properties")
+@PropertySource(value = "./application.properties")
 public class ThirdParty {
     private String podStatus;     //pod状态信息，以字符串的形式存储，通过访问url返回值更新
 
