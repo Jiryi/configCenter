@@ -239,7 +239,7 @@ public class ManagerSvcAdd {
             	.withProtocol("TCP")
             	.withName("client")
 				.withPort(8008)
-				.withNodePort(svcInfo.get("NodePort"))
+				.withNodePort(Integer.valueOf(svcInfo.get("NodePort").toString()))
             	.withTargetPort(new IntOrString(8080))
             	.endPort()
             	.endSpec();
