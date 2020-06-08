@@ -223,23 +223,41 @@ public class ManagerSvcAdd {
 
 		try {
 		  startTime = System.currentTimeMillis();
-          V1Service svc =new V1ServiceBuilder()
-            .withApiVersion("v1")
-            .withKind("Service")
-            .withNewMetadata()
-            .withName(svcName)
-            .endMetadata()
-            .withNewSpec()
-            .withSessionAffinity("ClientIP")
-            .withType("ClusterIP")
-            .addNewPort()
-            .withProtocol("TCP")
-            .withName("client")
-            .withPort(8008)
-            .withTargetPort(new IntOrString(8080))
-            .endPort()
-            .endSpec()
-            .build();
+		  V1ServiceBuilder serviceBuilder = new V1ServiceBuilder()
+		  		.withApiVersion("v1")
+		  		.withKind("Service")
+		  		.withNewMetadata()
+		  		.withName(svcName)
+		  		.endMetadata();
+
+		  if(svcInfo.containsKey("NodePort")){
+			serviceBuilder
+				.withNewSpec()
+            	.withSessionAffinity("ClientIP")
+            	.withType("NodePort")
+            	.addNewPort()
+            	.withProtocol("TCP")
+            	.withName("client")
+				.withPort(8008)
+				.withNodePort(svcInfo.get("NodePort"))
+            	.withTargetPort(new IntOrString(8080))
+            	.endPort()
+            	.endSpec();
+		} else {
+			serviceBuilder
+				.withNewSpec()
+            	.withSessionAffinity("ClientIP")
+            	.withType("ClusterIP")
+            	.addNewPort()
+            	.withProtocol("TCP")
+            	.withName("client")
+				.withPort(8008)
+            	.withTargetPort(new IntOrString(8080))
+            	.endPort()
+            	.endSpec();
+		}
+
+          V1Service svc = serviceBuilder.build();
 
           V1Service v1service = api.createNamespacedService(svcNamespace, svc, null, pretty, null);
           endTime = System.currentTimeMillis();
