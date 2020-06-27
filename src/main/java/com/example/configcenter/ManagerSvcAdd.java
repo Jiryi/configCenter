@@ -283,10 +283,11 @@ public class ManagerSvcAdd {
           System.out.println("Create Service " + v1service.getMetadata().getName() + " Successful!");
           System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
     
-        } catch (ApiException e) {
+        } catch (Exception e) {
         //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
-          System.err.println("Status code: " + e.getCode());
-          System.err.println("Reason: " + e.getResponseBody());
+        //   System.err.println("Status code: " + e.getCode());
+		//   System.err.println("Reason: " + e.getResponseBody());
+		  e.printStackTrace();
           endTime = System.currentTimeMillis();
 		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
           System.out.println(addSvcFailed);
