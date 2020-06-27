@@ -8,6 +8,8 @@ import java.sql.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import io.kubernetes.client.models.V1Service;
+
 public class DatabaseConnection {
 
     private final String mysql_url ="jdbc:mysql://127.0.0.1:3306/javaAPI_schema";
@@ -23,8 +25,7 @@ public class DatabaseConnection {
             //得到连接
     
             // 获取数据库连接
-            conn = DriverManager.getConnection(mysql_url, userName /*, password */);            if(!conn.isClosed())
-            
+            conn = DriverManager.getConnection(mysql_url /*userName /*, password */);           // if(!conn.isClosed())   
         } catch (Exception e) {
             // TODO: handle exception
             System.out.println("noooooo!!!");
@@ -35,18 +36,18 @@ public class DatabaseConnection {
         return true;
     }
 
-    public Boolean insertIntoDatabase(V1Service v1service) throws Exception {
+    public void insertIntoDatabase(V1Service v1service) throws Exception {
         Statement statement=conn.createStatement();
         String sql="insert into " + tableName + "(service_name, ip_addr, service_namespace)";
         // String uuid=getUUID();
 
         sql += "values('"
-            + v1Service.getMetadata().getName() + "','"
-            + v1Service.getSpec().getClusterIP() + "','";
-            + v1Service.getMetadata().getNamespace() + "'";
+            + v1service.getMetadata().getName() + "','"
+            + v1service.getSpec().getClusterIP() + "','"
+            + v1service.getMetadata().getNamespace()+ "'"
             + ")";
 
-        int result=stmt.executeUpdate(sql);
+        int result=statement.executeUpdate(sql);
         System.out.println(result);
 
         statement.close();
