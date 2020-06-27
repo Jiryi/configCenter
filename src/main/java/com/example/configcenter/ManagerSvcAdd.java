@@ -149,7 +149,10 @@ public class ManagerSvcAdd {
 		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
     	  System.out.println(addPodFailed);
     	  return "false";
-        }
+		}
+		
+		/* insert in database */
+		
         
         System.out.println("-----------------------------------");
         System.out.println("            Add Pod Done           ");
@@ -259,7 +262,21 @@ public class ManagerSvcAdd {
 
           V1Service svc = serviceBuilder.build();
 
-          V1Service v1service = api.createNamespacedService(svcNamespace, svc, null, pretty, null);
+		  V1Service v1service = api.createNamespacedService(svcNamespace, svc, null, pretty, null);
+		  
+		  /* insert into database */
+		  DatabaseConnection databaseConnection = new DatabaseConnection();
+		  if(!databaseConnection.establishConnection()) {
+			return "false";
+		  }
+
+		  if(!databaseConnection.insertIntoDatabase()) {
+  			databaseConnection.closeConnection();
+			return "false";
+		  }
+
+		  databaseConnection.closeConnection();
+
           endTime = System.currentTimeMillis();
           System.out.println("Create Service " + v1service.getMetadata().getName() + " Successful!");
           System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");

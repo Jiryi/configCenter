@@ -178,4 +178,19 @@ public class ServiceModel{
         // this.CPUs = (float) 0;
         // this.Memory = (float) 0;
     }
+
+    public void queryDetails(V1Service v1Service) {
+        this.name = v1Service.getMetadata().getName();
+        this.labels = v1Service.getMetadata().getLabels();
+        this.namespace = v1Service.getMetadata().getNamespace();
+        this.type = v1Service.getSpec().getType();
+        this.clusterIP = v1Service.getSpec().getClusterIP();
+        this.age = calculateDuration(v1Service.getMetadata().getCreationTimestamp());
+        this.creationTime = v1Service.getMetadata().getCreationTimestamp();
+        this.annotations = v1Service.getMetadata().getAnnotations();
+        this.selector = v1Service.getSpec().getSelector();
+        // this.restarts = 0;
+        // this.CPUs = (float) 0;
+        // this.Memory = (float) 0;
+    }
 }
