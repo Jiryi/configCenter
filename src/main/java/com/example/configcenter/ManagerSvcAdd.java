@@ -205,7 +205,8 @@ public class ManagerSvcAdd {
     		  return "false";
 		  }
 		  
-		  if(svcInfo.containsKey("labelkey") && svcInfo.containsKey("labelvalue")){
+		  if(svcInfo.containsKey("labelkey") && svcInfo.get("labelkey").toString() != "" 
+		  && svcInfo.containsKey("labelvalue") && svcInfo.get("labelvalue").toString() != ""){
 			labels.put(svcInfo.get("labelkey").toString(), svcInfo.get("labelvalue").toString());
 		  }
         } catch (ApiException e) {
