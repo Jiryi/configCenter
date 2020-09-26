@@ -180,7 +180,8 @@ public class ManagerSvcAdd {
     	CoreV1Api api = new CoreV1Api(client);
         String pretty = "true"; // String | If 'true', then the output is pretty printed.
         String dryRun = "All"; 
-        Boolean includeUninitialized = true;
+		Boolean includeUninitialized = true;
+		Map<String, String> labels = new HashMap<String, String>();;	
 
         V1Namespace namespace;
         String svcName = null, svcNamespace = null;
@@ -202,7 +203,11 @@ public class ManagerSvcAdd {
     		  System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
     		  System.out.println(addSvcFailed);
     		  return "false";
-    	  }
+		  }
+		  
+		  if(svcInfo.containsKey("labelkey") && svcInfo.containsKey("labelvalue")){
+			labels.put(svcInfo.get("labelkey").toString(), svcInfo.get("labelvalue").toString());
+		  }
         } catch (ApiException e) {
             //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
             System.err.println("Out Of Exception: " + e.getResponseBody());
@@ -231,7 +236,8 @@ public class ManagerSvcAdd {
 		  		.withApiVersion("v1")
 		  		.withKind("Service")
 		  		.withNewMetadata()
-		  		.withName(svcName)
+				  .withName(svcName)
+				  .withLabels(labels)
 		  		.endMetadata();
 
 		  if(svcInfo.containsKey("NodePort")){
