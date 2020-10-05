@@ -1,0 +1,66 @@
+Name:                 coredns-5644d7b6d9-nn6hk
+Namespace:            kube-system
+Priority:             2000000000
+Priority Class Name:  system-cluster-critical
+Node:                 istionode2/10.109.252.85
+Start Time:           Wed, 16 Sep 2020 02:19:31 +0800
+Labels:               k8s-app=kube-dns
+                      pod-template-hash=5644d7b6d9
+Annotations:          <none>
+Status:               Running
+IP:                   10.244.2.159
+IPs:
+  IP:           10.244.2.159
+Controlled By:  ReplicaSet/coredns-5644d7b6d9
+Containers:
+  coredns:
+    Container ID:  docker://6689296f5e6d69c33a0c465705388805c058ff07fc7a420adac54c4a1ee90dff
+    Image:         k8s.gcr.io/coredns:1.6.2
+    Image ID:      docker-pullable://registry.cn-hangzhou.aliyuncs.com/google_containers/coredns@sha256:4dd4d0e5bcc9bd0e8189f6fa4d4965ffa81207d8d99d29391f28cbd1a70a0163
+    Ports:         53/UDP, 53/TCP, 9153/TCP
+    Host Ports:    0/UDP, 0/TCP, 0/TCP
+    Args:
+      -conf
+      /etc/coredns/Corefile
+    State:          Running
+      Started:      Sun, 20 Sep 2020 13:41:38 +0800
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    255
+      Started:      Tue, 15 Sep 2020 13:33:02 +0800
+      Finished:     Fri, 18 Sep 2020 12:13:59 +0800
+    Ready:          True
+    Restart Count:  1
+    Limits:
+      memory:  170Mi
+    Requests:
+      cpu:        100m
+      memory:     70Mi
+    Liveness:     http-get http://:8080/health delay=60s timeout=5s period=10s #success=1 #failure=5
+    Readiness:    http-get http://:8181/ready delay=0s timeout=1s period=10s #success=1 #failure=3
+    Environment:  <none>
+    Mounts:
+      /etc/coredns from config-volume (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from coredns-token-mx8xk (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  config-volume:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      coredns
+    Optional:  false
+  coredns-token-mx8xk:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  coredns-token-mx8xk
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  beta.kubernetes.io/os=linux
+Tolerations:     CriticalAddonsOnly
+                 node-role.kubernetes.io/master:NoSchedule
+                 node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:          <none>

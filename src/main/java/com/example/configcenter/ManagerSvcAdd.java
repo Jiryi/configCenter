@@ -44,10 +44,8 @@ import com.example.model.ServiceModel;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+//import java.util.HashMap;
 import java.util.Map.Entry;
 @RestController
 
@@ -181,7 +179,7 @@ public class ManagerSvcAdd {
         String pretty = "true"; // String | If 'true', then the output is pretty printed.
         String dryRun = "All"; 
 		Boolean includeUninitialized = true;
-		Map<String, String> labels = new HashMap<String, String>();;	
+		Map<String, String> labels = new HashMap<String, String>();;
 
         V1Namespace namespace;
         String svcName = null, svcNamespace = null;
