@@ -81,6 +81,10 @@ public class ManagerSvcAdd {
 
         V1Namespace namespace;
         String podName = null, podNamespace = null;
+		Map<String, String> labels = new HashMap<String, String>();
+		String imageName = "nginx";
+		String containerName = "www";
+		String defaultCommand = "/bin/sh";
         try {
     	  if(podInfo.containsKey("name")){
     		  podName = podInfo.get("name").toString();
@@ -100,6 +104,26 @@ public class ManagerSvcAdd {
     		  System.out.println(addPodFailed);
     		  return "false";
     	  }
+
+		  if(podInfo.containsKey("labelkey") && podInfo.get("labelkey").toString() != ""
+				  && podInfo.containsKey("labelvalue") && podInfo.get("labelvalue").toString() != ""){
+		  	labels.put(podInfo.get("labelkey").toString(), podInfo.get("labelvalue").toString());
+		  }
+
+		  if(podInfo.containsKey("image") && podInfo.get("image").toString() != "")
+		  {
+		  	imageName = podInfo.get("image").toString();
+		  }
+
+		  if(podInfo.containsKey("container") && podInfo.get("container").toString() != "")
+		  {
+		  	containerName = podInfo.get("container").toString();
+		  }
+
+		  if(podInfo.containsKey("command") && podInfo.get("command").toString() != "")
+		  {
+		  	defaultCommand = podInfo.get("command").toString();
+		  }
         } catch (ApiException e) {
             //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
             System.err.println("Out Of Exception: " + e.getResponseBody());
@@ -127,11 +151,13 @@ public class ManagerSvcAdd {
           V1Pod pod = new V1PodBuilder()
                         .withNewMetadata()
                         .withName(podName)
+				  		.withLabels(labels)
                         .endMetadata()
                         .withNewSpec()
                         .addNewContainer()
-                        .withName("www")
-                        .withImage("nginx")
+                        .withName(containerName)
+                        .withImage(imageName)
+				  		.withCommand(defaultCommand)
                         .endContainer()
                         .endSpec()
                         .build();
@@ -179,7 +205,7 @@ public class ManagerSvcAdd {
         String pretty = "true"; // String | If 'true', then the output is pretty printed.
         String dryRun = "All"; 
 		Boolean includeUninitialized = true;
-		Map<String, String> labels = new HashMap<String, String>();;
+		Map<String, String> labels = new HashMap<String, String>();
 
         V1Namespace namespace;
         String svcName = null, svcNamespace = null;
