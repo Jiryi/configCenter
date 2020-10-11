@@ -274,6 +274,10 @@ public class ManagerSvcAdd {
                 nodePort = Integer.valueOf(svcInfo.get("nodeport").toString());
             }
 
+//            nodePort = (nodePort < 30001) ? 30001 : nodePort;
+//            nodePort = (nodePort > 32766) ? 32766 : nodePort;
+//            System.out.println(type + " " + nodePort + " " + port);
+
         } catch (ApiException e) {
             //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
             System.err.println("Out Of Exception: " + e.getResponseBody());
@@ -315,7 +319,7 @@ public class ManagerSvcAdd {
                         .withProtocol(protocol)
                         .withName(portName)
                         .withPort(port)
-                        .withNodePort(nodePort)
+//                        .withNodePort(nodePort)
                         .withTargetPort(new IntOrString(targetPort))
                         .endPort()
                         .endSpec();
@@ -337,7 +341,6 @@ public class ManagerSvcAdd {
             V1Service svc = serviceBuilder.build();
 
             V1Service v1service = api.createNamespacedService(svcNamespace, svc, null, pretty, null);
-
             /* insert into database */
             /*
             DatabaseConnection databaseConnection = new DatabaseConnection();
@@ -364,6 +367,123 @@ public class ManagerSvcAdd {
             e.printStackTrace();
             endTime = System.currentTimeMillis();
             System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
+            System.out.println(addSvcFailed);
+            return "false";
+        }
+
+
+        /* add if REAL SERVICE exist */
+        long startTimeOfRealSvc = System.currentTimeMillis();
+
+        Map<String, String> realLabels = new HashMap<String, String>();
+
+        String realSvcName = null, realSvcNamespace = svcNamespace;
+        String realType = type;
+        String realPortName = portName;
+        String realProtocol = protocol;
+        Integer realPort = port;
+        Integer realTargetPort = targetPort;
+        Integer realNodePort = nodePort;
+
+//        Set<String> keys = (Set<String>)svcInfo.keySet();
+//        for(String key : keys)
+//        {
+//            System.out.println(key + "\t" + svcInfo.get(key));
+//        }
+        try {
+            if (svcInfo.containsKey("rname") && !svcInfo.get("rname").equals("")) {
+                realSvcName = svcInfo.get("rname").toString();
+                System.out.println("realSvcName: " + realSvcName);
+                /*
+                if (svcInfo.containsKey("rnamespace") && !svcInfo.get("rnamespace").equals(""))
+                {
+                    realSvcNamespace = svcInfo.get("rnamespace").toString();
+                }
+                */
+
+                if (svcInfo.containsKey("rtype") && !svcInfo.get("rtype").equals("")) {
+                    realType = svcInfo.get("rtype").toString();
+                }
+
+                if (svcInfo.containsKey("rprotocol") && !svcInfo.get("rprotocol").equals("")) {
+                    realProtocol = svcInfo.get("rprotocol").toString();
+                }
+
+                if (svcInfo.containsKey("rport") && !svcInfo.get("rport").equals("")) {
+                    realPort = Integer.valueOf(svcInfo.get("rport").toString());
+                }
+
+                if (svcInfo.containsKey("rtargetport") && !svcInfo.get("rtargetport").equals("")) {
+                    realTargetPort = Integer.valueOf(svcInfo.get("rtargetport").toString());
+                }
+
+                if (svcInfo.containsKey("rnodeport") && !svcInfo.get("rnodeport").equals("")) {
+                    realNodePort = Integer.valueOf(svcInfo.get("rnodeport").toString());
+                }
+
+//                realNodePort = (realNodePort < 30001) ? 30001 : realNodePort;
+//                realNodePort = (realNodePort > 32766) ? 32766 : realNodePort;
+//                System.out.println(realType + " " + realNodePort + " " + realPort);
+
+                if (svcInfo.containsKey("rlabelkey") && !svcInfo.get("rlabelkey").equals("")
+                        && svcInfo.containsKey("rlabelvalue") && !svcInfo.get("rlabelvalue").equals("")) {
+                    realLabels.put(svcInfo.get("labelkey").toString(), svcInfo.get("rlabelvalue").toString());
+                } else {
+                    realLabels = labels;
+                }
+
+                V1ServiceBuilder serviceBuilder = new V1ServiceBuilder()
+                        .withApiVersion("v1")
+                        .withKind("Service")
+                        .withNewMetadata()
+                        .withName(realSvcName)
+                        .withLabels(realLabels)
+                        .endMetadata();
+
+                if (realType.equals("NodePort") || realType.equals("LoadBalancer")) {
+                    serviceBuilder
+                            .withNewSpec()
+                            .withSessionAffinity(sessionAffinity)
+                            .withSelector(realLabels)
+                            .withType(realType)
+                            .addNewPort()
+                            .withProtocol(realProtocol)
+                            .withName(realPortName)
+                            .withPort(realPort)
+//                            .withNodePort(realNodePort)
+                            .withTargetPort(new IntOrString(realTargetPort))
+                            .endPort()
+                            .endSpec();
+                } else {
+                    serviceBuilder
+                            .withNewSpec()
+                            .withSessionAffinity(sessionAffinity)
+                            .withSelector(realLabels)
+                            .withType(realType)
+                            .addNewPort()
+                            .withProtocol(realProtocol)
+                            .withName(realPortName)
+                            .withPort(realPort)
+                            .withTargetPort(new IntOrString(realTargetPort))
+                            .endPort()
+                            .endSpec();
+                }
+
+                V1Service svc = serviceBuilder.build();
+
+                V1Service v1service = api.createNamespacedService(realSvcNamespace, svc, null, pretty, null);
+
+                endTime = System.currentTimeMillis();
+                System.out.println("Create Real Service " + v1service.getMetadata().getName() + " Successful!");
+                System.out.println("\nTime spend: " + (endTime - startTimeOfRealSvc) + " miliseconds.\n");
+            }
+        } catch (Exception e) {
+            //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
+            //   System.err.println("Status code: " + e.getCode());
+            //   System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+            endTime = System.currentTimeMillis();
+            System.out.println("\nTime spend: " + (endTime - startTimeOfRealSvc) + " miliseconds.\n");
             System.out.println(addSvcFailed);
             return "false";
         }
