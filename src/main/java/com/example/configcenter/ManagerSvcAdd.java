@@ -87,7 +87,14 @@ public class ManagerSvcAdd {
         String imageName = "nginx";
         String imagePullPolicy = "IfNotPresent";
         String containerName = "www";
-        String defaultCommand = "/bin/sh";
+        List<String> list = new ArrayList<>();
+//        list.add("/bin/sh");
+        list.add("sleep");
+        list.add("34000");
+        System.out.println(list.get(0));
+        System.out.println(list.get(1));
+        String defaultCommand = "/bin/bash cat \"helloworld\"";//sleep 36000
+
         try {
             if (podInfo.containsKey("name")) {
                 podName = podInfo.get("name").toString();
@@ -161,7 +168,8 @@ public class ManagerSvcAdd {
                     .withName(containerName)
                     .withImage(imageName)
                     .withImagePullPolicy(imagePullPolicy)
-                    .withCommand(defaultCommand)
+//                    .withCommand(list)//defaultCommand
+                    .withCommand("sleep 34000")
                     .endContainer()
                     .endSpec()
                     .build();
