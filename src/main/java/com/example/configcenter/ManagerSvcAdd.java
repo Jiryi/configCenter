@@ -48,6 +48,38 @@ import java.util.*;
 //import java.util.HashMap;
 import java.util.Map.Entry;
 
+
+class containerInstance {
+    private String image;
+    private String name;
+    private String command;
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public void setCommand(String command) {
+        this.command = command;
+    }
+}
+
+
 @RestController
 
 // @CrossOrigin(origins = "http://localhost:3000")
@@ -64,7 +96,7 @@ public class ManagerSvcAdd {
 
     @RequestMapping(value = "/addPod", method = RequestMethod.POST)
     @ResponseBody
-    public String addPod(@RequestBody Map<String, String> podInfo) throws ApiException, IOException {
+    public String addPod(@RequestBody Map<String, Object> podInfo) throws ApiException, IOException {
         System.out.println("-----------------------------------");
         System.out.println("              Add Pod              ");
         System.out.println("-----------------------------------");
@@ -94,7 +126,15 @@ public class ManagerSvcAdd {
         System.out.println(list.get(0));
         System.out.println(list.get(1));
         String defaultCommand = "/bin/bash cat \"helloworld\"";//sleep 36000
+        String command = null;
+        List<String> args = new LinkedList<>();
 
+        List<Map<String, String>> containers = new ArrayList<>();
+
+        Set<String> keys = (Set<String>) podInfo.keySet();
+        for (String key : keys) {
+            System.out.println(key + "\t" + podInfo.get(key));
+        }
         try {
             if (podInfo.containsKey("name")) {
                 podName = podInfo.get("name").toString();
@@ -120,16 +160,35 @@ public class ManagerSvcAdd {
                 labels.put(podInfo.get("labelkey").toString(), podInfo.get("labelvalue").toString());
             }
 
+            if (podInfo.containsKey("containerrecords") && podInfo.get("containerrecords") != null) {
+                Object containerObj = podInfo.get("containerrecords");
+                System.out.println(containerObj.toString());
+                if (containerObj instanceof List<?>) {
+                    System.out.println("is a instance of List.");
+                    for (Object o : (List<?>) containerObj) {
+                        containers.add((Map<String, String>)o);
+                    }
+                }
+            }
+
             if (podInfo.containsKey("image") && podInfo.get("image").toString() != "") {
                 imageName = podInfo.get("image").toString();
             }
 
-            if (podInfo.containsKey("container") && podInfo.get("container").toString() != "") {
-                containerName = podInfo.get("container").toString();
-            }
-
             if (podInfo.containsKey("command") && podInfo.get("command").toString() != "") {
-                defaultCommand = podInfo.get("command").toString();
+                String commandString = podInfo.get("command").toString();
+                String[] commandSplit = commandString.split(" ");
+                if (commandSplit != null && commandSplit.length != 0) {
+                    int splitLength = commandSplit.length;
+                    for (int index = 0; index < splitLength; index++) {
+                        if (index == 0) //command
+                        {
+                            command = commandSplit[index];
+                        } else {
+                            args.add(commandSplit[index]);
+                        }
+                    }
+                }
             }
 
             if (podInfo.containsKey("imagepullpolicy") && podInfo.get("imagepullpolicy").toString() != "") {
@@ -158,21 +217,45 @@ public class ManagerSvcAdd {
         }
 
         try {
-            V1Pod pod = new V1PodBuilder()
+            V1Pod pod = null;
+            V1PodBuilder podbuilder = new V1PodBuilder();
+            podbuilder
                     .withNewMetadata()
                     .withName(podName)
                     .withLabels(labels)
-                    .endMetadata()
-                    .withNewSpec()
-                    .addNewContainer()
-                    .withName(containerName)
-                    .withImage(imageName)
-                    .withImagePullPolicy(imagePullPolicy)
-//                    .withCommand(list)//defaultCommand
-                    .withCommand("sleep 34000")
-                    .endContainer()
-                    .endSpec()
-                    .build();
+                    .endMetadata();
+            for (Map<String, String> ci : containers)
+            {
+                String localcommand = null;
+                List<String> localargs = new LinkedList<>();
+                String commandString = ci.get("command");
+                String[] commandSplit = commandString.split(" ");
+                if (commandSplit != null && commandSplit.length != 0) {
+                    int splitLength = commandSplit.length;
+                    for (int index = 0; index < splitLength; index++) {
+                        if (index == 0) //command
+                        {
+                            localcommand = commandSplit[index];
+                        } else {
+                            localargs.add(commandSplit[index]);
+                        }
+                    }
+                }
+
+                podbuilder.editOrNewSpec()
+                        .addNewContainer()
+                        .withName(ci.get("name"))
+                        .withImage(ci.get("image"))
+                        .withImagePullPolicy(imagePullPolicy)
+                        .withCommand(localcommand)
+                        .withArgs(localargs)
+                        .endContainer()
+                        .endSpec();
+
+
+            }
+            pod =  podbuilder.build();
+
             V1Pod v1pod = api.createNamespacedPod(podNamespace, pod, includeUninitialized, pretty, dryRun);
             endTime = System.currentTimeMillis();
             System.out.println("Create Pod " + v1pod.getMetadata().getName() + " Successful!");
