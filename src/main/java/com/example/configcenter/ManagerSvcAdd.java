@@ -35,6 +35,7 @@ import com.example.model.ServiceModel;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.*;
 //import java.util.HashMap;
 import java.util.Map.Entry;
@@ -78,6 +79,7 @@ class containerInstance {
 public class ManagerSvcAdd {
     public static long startTime = 0L;
     public static long endTime = 0L;
+    public static long endTime1 = 0L;
     public static final String addPodFailed = "-----------------------------------\n"
             + "           Add Pod Failed          \n"
             + "-----------------------------------\n";
@@ -115,7 +117,6 @@ public class ManagerSvcAdd {
 ////        list.add("/bin/sh");
 //        list.add("sleep");
 //        list.add("34000");
-//
 //        System.out.println(list.get(0));
 //        System.out.println(list.get(1));
 
@@ -126,7 +127,7 @@ public class ManagerSvcAdd {
         List<String> args = new LinkedList<>();
 
         List<Map<String, String>> containers = new ArrayList<>();
-//1019
+
         List<Map<String, String>> ports = new ArrayList<>();
 
         Set<String> keys = (Set<String>) podInfo.keySet();
@@ -162,7 +163,7 @@ public class ManagerSvcAdd {
                 Object containerObj = podInfo.get("containerrecords");
                 System.out.println(containerObj.toString());
                 if (containerObj instanceof List<?>) {
-                    System.out.println("is a instance of List.");
+//                    System.out.println("is a instance of List.");
                     for (Object o : (List<?>) containerObj) {
                         containers.add((Map<String, String>) o);
                     }
@@ -173,7 +174,7 @@ public class ManagerSvcAdd {
                 Object portObj = podInfo.get("portrecords");
                 System.out.println(portObj.toString());
                 if (portObj instanceof List<?>) {
-                    System.out.println("is a instance of List.");
+//                    System.out.println("is a instance of List.");
                     for (Object o : (List<?>) portObj) {
                         ports.add((Map<String, String>) o);
                     }
@@ -203,33 +204,6 @@ public class ManagerSvcAdd {
 //                imageName = podInfo.get("image").toString();
 //            }
 
-//            if (podInfo.containsKey("command") && podInfo.get("command").toString() != "") {
-////                System.out.println("command111111="+podInfo.get("command").toString());
-//                String commandString = podInfo.get("command").toString();
-//                String[] commandSplit = commandString.split(" ");
-////                List<String> list = new ArrayList<>();
-////                List<String> commandlist = new ArrayList<>();
-//                for(int i = 0;i < commandSplit.length;i++ ){
-//                    commandList.add(commandSplit[i]);
-//                    System.out.println(commandList.get(i));
-//                }
-//                if (commandList != null && commandList.size() != 0) {
-//                    for (int index = 0; index < commandList.size(); index++) {
-//                        if (index == 0) //command
-//                        {
-//                            command = commandSplit[index];
-//                        } else {
-//                            args.add(commandSplit[index]);
-//                        }
-//                    }
-//                    for(int i = 0;i < commandList.size();i++ ){
-//                        System.out.println(commandList.get(i));
-//                    }
-//                }else{
-//                    commandList.add("sleep");
-//                    commandList.add("34000");
-//                }
-//            }
 
             if (podInfo.containsKey("imagepullpolicy") && podInfo.get("imagepullpolicy").toString() != "") {
                 imagePullPolicy = podInfo.get("imagepullpolicy").toString();
@@ -283,9 +257,7 @@ public class ManagerSvcAdd {
                          */
                     }
                 }
-//                for(int i = 0;i<localargs.size();i++){
-//                    System.out.println("start      "+localargs.get(i));
-//                }
+
                 List<V1ContainerPort> portList=new ArrayList<>();
                 for (Map<String, String> pi : ports){
                     if(pi.get("container").equals(ci.get("name"))){
@@ -303,6 +275,7 @@ public class ManagerSvcAdd {
                         .withName(ci.get("name"))
                         .withImage(ci.get("image"))
                         .withImagePullPolicy(imagePullPolicy)
+//                        .withImagePullPolicy("Never")
                         .withPorts(portList)
                         .withCommand(localargs)
                         .endContainer()
@@ -339,7 +312,9 @@ public class ManagerSvcAdd {
     // @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping(value = "/addService", method = RequestMethod.POST)
     @ResponseBody
-    public String addService(@RequestBody Map<String, String> svcInfo) throws ApiException, IOException {
+//    public String addService(@RequestBody Map<String, String> svcInfo) throws ApiException, IOException {
+// 10.20
+ public String addService(@RequestBody Map<String, Object> svcInfo) throws ApiException, IOException {
         System.out.println("-----------------------------------");
         System.out.println("            Add Service            ");
         System.out.println("-----------------------------------");
@@ -366,7 +341,11 @@ public class ManagerSvcAdd {
         Integer port = 80;
         Integer targetPort = 8080;
         Integer nodePort = 8080;
-
+        List<Map<String,String>> realSvcs = new ArrayList<>();
+        Set<String> keys = (Set<String>)svcInfo.keySet();
+        for(String key : keys){
+            System.out.println(key+":" +svcInfo.get(key));
+        }
         try {
             if (svcInfo.containsKey("name")) {
                 svcName = svcInfo.get("name").toString();
@@ -396,29 +375,39 @@ public class ManagerSvcAdd {
                 type = svcInfo.get("type").toString();
             }
 
-            if (svcInfo.containsKey("sessionaffinity") && svcInfo.get("sessionaffinity").toString() != "") {
-                sessionAffinity = svcInfo.get("sessionaffinity").toString();
+            if (svcInfo.containsKey("realrecords") && svcInfo.get("realrecords") != null) {
+                Object realSvcObj = svcInfo.get("realrecords");
+                System.out.println(realSvcObj.toString());
+                if (realSvcObj instanceof List<?>) {
+                    System.out.println("realrecords has been catched!");
+                    for (Object o : (List<?>) realSvcObj) {
+                        realSvcs.add((Map<String, String>) o);
+                    }
+                }
             }
+//            if (svcInfo.containsKey("sessionaffinity") && svcInfo.get("sessionaffinity").toString() != "") {
+//                sessionAffinity = svcInfo.get("sessionaffinity").toString();
+//            }
 
-            if (svcInfo.containsKey("portname") && !svcInfo.get("portname").equals("")) {
-                portName = svcInfo.get("portname").toString();
-            }
-
-            if (svcInfo.containsKey("protocol") && !svcInfo.get("protocol").equals("")) {
-                protocol = svcInfo.get("protocol").toString();
-            }
-
-            if (svcInfo.containsKey("port") && !svcInfo.get("port").equals("")) {
-                port = Integer.valueOf(svcInfo.get("port").toString());
-            }
-
-            if (svcInfo.containsKey("targetport") && !svcInfo.get("targetport").equals("")) {
-                targetPort = Integer.valueOf(svcInfo.get("targetport").toString());
-            }
-
-            if (svcInfo.containsKey("nodeport") && !svcInfo.get("nodeport").equals("")) {
-                nodePort = Integer.valueOf(svcInfo.get("nodeport").toString());
-            }
+//            if (svcInfo.containsKey("portname") && !svcInfo.get("portname").equals("")) {
+//                portName = svcInfo.get("portname").toString();
+//            }
+//
+//            if (svcInfo.containsKey("protocol") && !svcInfo.get("protocol").equals("")) {
+//                protocol = svcInfo.get("protocol").toString();
+//            }
+//
+//            if (svcInfo.containsKey("port") && !svcInfo.get("port").equals("")) {
+//                port = Integer.valueOf(svcInfo.get("port").toString());
+//            }
+//
+//            if (svcInfo.containsKey("targetport") && !svcInfo.get("targetport").equals("")) {
+//                targetPort = Integer.valueOf(svcInfo.get("targetport").toString());
+//            }
+//
+//            if (svcInfo.containsKey("nodeport") && !svcInfo.get("nodeport").equals("")) {
+//                nodePort = Integer.valueOf(svcInfo.get("nodeport").toString());
+//            }
 
 //            nodePort = (nodePort < 30001) ? 30001 : nodePort;
 //            nodePort = (nodePort > 32766) ? 32766 : nodePort;
@@ -506,6 +495,57 @@ public class ManagerSvcAdd {
             System.out.println("Create Service " + v1service.getMetadata().getName() + " Successful!");
             System.out.println("\nTime spend: " + (endTime - startTime) + " miliseconds.\n");
 
+            for (Map<String, String> rsi : realSvcs) {
+                Map<String, String> labels1 = new HashMap<String, String>();
+                labels1.put("to","to");
+                V1ServiceBuilder serviceBuilder1 = new V1ServiceBuilder()
+                        .withApiVersion("v1")
+                        .withKind("Service")
+                        .withNewMetadata()
+                        .withName(rsi.get("name"))
+                        .withLabels(labels1)
+                        .endMetadata();
+
+                if (rsi.get("type").equals("NodePort") || rsi.get("type").equals("LoadBalancer")) {
+                    serviceBuilder1
+                            .withNewSpec()
+                            .withSessionAffinity(sessionAffinity)
+                            .withSelector(labels1)
+                            .withType(rsi.get("type"))
+                            .addNewPort()
+                            .withProtocol(protocol)
+                            .withName(rsi.get("name"))
+                            .withPort(port)
+//                            .withNodePort(3000)//先写成这个
+                            .withTargetPort(new IntOrString(targetPort))
+                            .endPort()
+                            .endSpec();
+                } else {
+                    serviceBuilder1
+                            .withNewSpec()
+                            .withSessionAffinity(sessionAffinity)
+                            .withSelector(labels)
+                            .withType(rsi.get("type"))
+                            .addNewPort()
+                            .withProtocol(protocol)
+                            .withName(rsi.get("name"))
+//                            .withNodePort(3000)//先写成这个
+                            .withTargetPort(new IntOrString(targetPort))
+                            .endPort()
+                            .endSpec();
+                }
+
+                V1Service svc1 = serviceBuilder1.build();
+
+                V1Service v1service1 = api.createNamespacedService(rsi.get("namespace"), svc1, null, pretty, null);
+
+                endTime1 = System.currentTimeMillis();
+                long startTimeOfRealSvc = System.currentTimeMillis();
+                System.out.println("Create Real Service " + v1service1.getMetadata().getName() + " Successful!");
+                System.out.println("\nTime spend: " + (endTime1 - startTimeOfRealSvc) + " miliseconds.\n");
+
+            }
+
         } catch (Exception e) {
             //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
             //   System.err.println("Status code: " + e.getCode());
@@ -519,120 +559,124 @@ public class ManagerSvcAdd {
 
 
         /* add if REAL SERVICE exist */
-        long startTimeOfRealSvc = System.currentTimeMillis();
+//        long startTimeOfRealSvc = System.currentTimeMillis();
+//10.20
+//      Map<String, String> realLabels = new HashMap<String, String>();
 
-        Map<String, String> realLabels = new HashMap<String, String>();
+//        String realSvcName = null, realSvcNamespace = svcNamespace;
+//        String realType = type;
+//        String realPortName = portName;
+//        String realProtocol = protocol;
+//        Integer realPort = port;
+//        Integer realTargetPort = targetPort;
+//        Integer realNodePort = nodePort;
 
-        String realSvcName = null, realSvcNamespace = svcNamespace;
-        String realType = type;
-        String realPortName = portName;
-        String realProtocol = protocol;
-        Integer realPort = port;
-        Integer realTargetPort = targetPort;
-        Integer realNodePort = nodePort;
+
+//10.20
+// List<Map<String, String>> realSvcs = new ArrayList<>();
 
 //        Set<String> keys = (Set<String>)svcInfo.keySet();
 //        for(String key : keys)
 //        {
 //            System.out.println(key + "\t" + svcInfo.get(key));
 //        }
-        try {
-            if (svcInfo.containsKey("rname") && !svcInfo.get("rname").equals("")) {
-                realSvcName = svcInfo.get("rname").toString();
-                System.out.println("realSvcName: " + realSvcName);
-                /*
-                if (svcInfo.containsKey("rnamespace") && !svcInfo.get("rnamespace").equals(""))
-                {
-                    realSvcNamespace = svcInfo.get("rnamespace").toString();
-                }
-                */
-
-                if (svcInfo.containsKey("rtype") && !svcInfo.get("rtype").equals("")) {
-                    realType = svcInfo.get("rtype").toString();
-                }
-
-                if (svcInfo.containsKey("rprotocol") && !svcInfo.get("rprotocol").equals("")) {
-                    realProtocol = svcInfo.get("rprotocol").toString();
-                }
-
-                if (svcInfo.containsKey("rport") && !svcInfo.get("rport").equals("")) {
-                    realPort = Integer.valueOf(svcInfo.get("rport").toString());
-                }
-
-                if (svcInfo.containsKey("rtargetport") && !svcInfo.get("rtargetport").equals("")) {
-                    realTargetPort = Integer.valueOf(svcInfo.get("rtargetport").toString());
-                }
-
-                if (svcInfo.containsKey("rnodeport") && !svcInfo.get("rnodeport").equals("")) {
-                    realNodePort = Integer.valueOf(svcInfo.get("rnodeport").toString());
-                }
-
-//                realNodePort = (realNodePort < 30001) ? 30001 : realNodePort;
-//                realNodePort = (realNodePort > 32766) ? 32766 : realNodePort;
-//                System.out.println(realType + " " + realNodePort + " " + realPort);
-
-                if (svcInfo.containsKey("rlabelkey") && !svcInfo.get("rlabelkey").equals("")
-                        && svcInfo.containsKey("rlabelvalue") && !svcInfo.get("rlabelvalue").equals("")) {
-                    realLabels.put(svcInfo.get("labelkey").toString(), svcInfo.get("rlabelvalue").toString());
-                } else {
-                    realLabels = labels;
-                }
-
-                V1ServiceBuilder serviceBuilder = new V1ServiceBuilder()
-                        .withApiVersion("v1")
-                        .withKind("Service")
-                        .withNewMetadata()
-                        .withName(realSvcName)
-                        .withLabels(realLabels)
-                        .endMetadata();
-
-                if (realType.equals("NodePort") || realType.equals("LoadBalancer")) {
-                    serviceBuilder
-                            .withNewSpec()
-                            .withSessionAffinity(sessionAffinity)
-                            .withSelector(realLabels)
-                            .withType(realType)
-                            .addNewPort()
-                            .withProtocol(realProtocol)
-                            .withName(realPortName)
-                            .withPort(realPort)
-//                            .withNodePort(realNodePort)
-                            .withTargetPort(new IntOrString(realTargetPort))
-                            .endPort()
-                            .endSpec();
-                } else {
-                    serviceBuilder
-                            .withNewSpec()
-                            .withSessionAffinity(sessionAffinity)
-                            .withSelector(realLabels)
-                            .withType(realType)
-                            .addNewPort()
-                            .withProtocol(realProtocol)
-                            .withName(realPortName)
-                            .withPort(realPort)
-                            .withTargetPort(new IntOrString(realTargetPort))
-                            .endPort()
-                            .endSpec();
-                }
-
-                V1Service svc = serviceBuilder.build();
-
-                V1Service v1service = api.createNamespacedService(realSvcNamespace, svc, null, pretty, null);
-
-                endTime = System.currentTimeMillis();
-                System.out.println("Create Real Service " + v1service.getMetadata().getName() + " Successful!");
-                System.out.println("\nTime spend: " + (endTime - startTimeOfRealSvc) + " miliseconds.\n");
-            }
-        } catch (Exception e) {
-            //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
-            //   System.err.println("Status code: " + e.getCode());
-            //   System.err.println("Reason: " + e.getResponseBody());
-            e.printStackTrace();
-            endTime = System.currentTimeMillis();
-            System.out.println("\nTime spend: " + (endTime - startTimeOfRealSvc) + " miliseconds.\n");
-            System.out.println(addSvcFailed);
-            return "false";
-        }
+//        try {
+//            if (svcInfo.containsKey("rname") && !svcInfo.get("rname").equals("")) {
+//                realSvcName = svcInfo.get("rname").toString();
+//                System.out.println("realSvcName: " + realSvcName);
+//                /*
+//                if (svcInfo.containsKey("rnamespace") && !svcInfo.get("rnamespace").equals(""))
+//                {
+//                    realSvcNamespace = svcInfo.get("rnamespace").toString();
+//                }
+//                */
+//
+//                if (svcInfo.containsKey("rtype") && !svcInfo.get("rtype").equals("")) {
+//                    realType = svcInfo.get("rtype").toString();
+//                }
+//
+//                if (svcInfo.containsKey("rprotocol") && !svcInfo.get("rprotocol").equals("")) {
+//                    realProtocol = svcInfo.get("rprotocol").toString();
+//                }
+//
+//                if (svcInfo.containsKey("rport") && !svcInfo.get("rport").equals("")) {
+//                    realPort = Integer.valueOf(svcInfo.get("rport").toString());
+//                }
+//
+//                if (svcInfo.containsKey("rtargetport") && !svcInfo.get("rtargetport").equals("")) {
+//                    realTargetPort = Integer.valueOf(svcInfo.get("rtargetport").toString());
+//                }
+//
+//                if (svcInfo.containsKey("rnodeport") && !svcInfo.get("rnodeport").equals("")) {
+//                    realNodePort = Integer.valueOf(svcInfo.get("rnodeport").toString());
+//                }
+//
+////                realNodePort = (realNodePort < 30001) ? 30001 : realNodePort;
+////                realNodePort = (realNodePort > 32766) ? 32766 : realNodePort;
+////                System.out.println(realType + " " + realNodePort + " " + realPort);
+//
+//                if (svcInfo.containsKey("rlabelkey") && !svcInfo.get("rlabelkey").equals("")
+//                        && svcInfo.containsKey("rlabelvalue") && !svcInfo.get("rlabelvalue").equals("")) {
+//                    realLabels.put(svcInfo.get("labelkey").toString(), svcInfo.get("rlabelvalue").toString());
+//                } else {
+//                    realLabels = labels;
+//                }
+//
+//                V1ServiceBuilder serviceBuilder = new V1ServiceBuilder()
+//                        .withApiVersion("v1")
+//                        .withKind("Service")
+//                        .withNewMetadata()
+//                        .withName(realSvcName)
+//                        .withLabels(realLabels)
+//                        .endMetadata();
+//
+//                if (realType.equals("NodePort") || realType.equals("LoadBalancer")) {
+//                    serviceBuilder
+//                            .withNewSpec()
+//                            .withSessionAffinity(sessionAffinity)
+//                            .withSelector(realLabels)
+//                            .withType(realType)
+//                            .addNewPort()
+//                            .withProtocol(realProtocol)
+//                            .withName(realPortName)
+//                            .withPort(realPort)
+////                            .withNodePort(realNodePort)
+//                            .withTargetPort(new IntOrString(realTargetPort))
+//                            .endPort()
+//                            .endSpec();
+//                } else {
+//                    serviceBuilder
+//                            .withNewSpec()
+//                            .withSessionAffinity(sessionAffinity)
+//                            .withSelector(realLabels)
+//                            .withType(realType)
+//                            .addNewPort()
+//                            .withProtocol(realProtocol)
+//                            .withName(realPortName)
+//                            .withPort(realPort)
+//                            .withTargetPort(new IntOrString(realTargetPort))
+//                            .endPort()
+//                            .endSpec();
+//                }
+//
+//                V1Service svc = serviceBuilder.build();
+//
+//                V1Service v1service = api.createNamespacedService(realSvcNamespace, svc, null, pretty, null);
+//
+//                endTime = System.currentTimeMillis();
+//                System.out.println("Create Real Service " + v1service.getMetadata().getName() + " Successful!");
+////                System.out.println("\nTime spend: " + (endTime - startTimeOfRealSvc) + " miliseconds.\n");
+//            }
+//        } catch (Exception e) {
+//            //   System.err.println("Exception when calling CoreV1Api#listNamespacedPod");
+//            //   System.err.println("Status code: " + e.getCode());
+//            //   System.err.println("Reason: " + e.getResponseBody());
+//            e.printStackTrace();
+//            endTime = System.currentTimeMillis();
+////            System.out.println("\nTime spend: " + (endTime - startTimeOfRealSvc) + " miliseconds.\n");
+//            System.out.println(addSvcFailed);
+//            return "false";
+//        }
 
         System.out.println("-----------------------------------");
         System.out.println("          Add Service Done         ");
